@@ -1,7 +1,8 @@
 # Unify
 UNIFY - A social campus hub app for college students featuring discussion threads, marketplace functionality, and community engagement. Developed in Kotlin for Android.
 
-**MILESTONES**
+MILESTONES
+
 OCT 27: page navigation + general layout
 - implement main menu / navigation bar
 - set up each scene with basic UI layout
