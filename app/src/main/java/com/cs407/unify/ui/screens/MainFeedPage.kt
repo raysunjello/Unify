@@ -37,13 +37,15 @@ import com.cs407.unify.ui.components.BottomTab
 fun PreviewMainFeedPage() {
     MainFeedPage(
         onNavigateToPostPage = {},
-        onNavigateToMarketPage = {}
+        onNavigateToMarketPage = {},
+        onNavigateToProfilePage = {}
     )
 }
 @Composable
 fun MainFeedPage(
     onNavigateToPostPage: () -> Unit,
     onNavigateToMarketPage: () -> Unit,
+    onNavigateToProfilePage: () -> Unit
 ){
     Box(
         modifier = Modifier.fillMaxSize()
@@ -178,7 +180,7 @@ fun MainFeedPage(
             onSearch = {/* TODO */},
             onPost = { onNavigateToPostPage() },
             onMarket = { onNavigateToMarketPage() },
-            onProfile = {/* TODO */},
+            onProfile = { onNavigateToProfilePage()},
             modifier = Modifier.align(Alignment.BottomCenter)
         )
 

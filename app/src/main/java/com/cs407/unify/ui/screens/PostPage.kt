@@ -23,7 +23,8 @@ import com.cs407.unify.ui.components.BottomTab
 @Composable
 fun PostPage(
     onNavigateToMainFeedPage: () -> Unit,
-    onNavigateToMarketPage: () -> Unit
+    onNavigateToMarketPage: () -> Unit,
+    onNavigateToProfilePage: () -> Unit
 ) {
     var postTitle by remember { mutableStateOf("") }
     var hub by remember { mutableStateOf("") }
@@ -207,7 +208,7 @@ fun PostPage(
             onSearch = {/* TODO */},
             onPost = { /* currently on post page */ },
             onMarket = { onNavigateToMarketPage() },
-            onProfile = {/* TODO */},
+            onProfile = {onNavigateToProfilePage()},
             modifier = Modifier.align(Alignment.BottomCenter)
         )
 

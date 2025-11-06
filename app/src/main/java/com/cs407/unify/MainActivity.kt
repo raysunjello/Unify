@@ -13,6 +13,7 @@ import com.cs407.unify.ui.screens.LoginPage
 import com.cs407.unify.ui.screens.MainFeedPage
 import com.cs407.unify.ui.screens.MarketPage
 import com.cs407.unify.ui.screens.PostPage
+import com.cs407.unify.ui.screens.ProfilePage
 
 
 class MainActivity : ComponentActivity() {
@@ -45,22 +46,34 @@ fun AppNavigation() {
         composable("mainfeed"){
             MainFeedPage(
                 onNavigateToPostPage = { navController.navigate("post") },
-                onNavigateToMarketPage = { navController.navigate("market") }
+                onNavigateToMarketPage = { navController.navigate("market") },
+                onNavigateToProfilePage = { navController.navigate("profile") }
             )
         }
 
         composable("post"){
             PostPage(
                 onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
-                onNavigateToMarketPage = { navController.navigate("market") }
+                onNavigateToMarketPage = { navController.navigate("market") },
+                onNavigateToProfilePage = { navController.navigate("profile") }
             )
         }
 
         composable("market"){
             MarketPage(
                 onNavigateToPostPage = { navController.navigate("post") },
-                onNavigateToMainFeedPage = { navController.navigate("mainfeed") }
+                onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
+                onNavigateToProfilePage = { navController.navigate("profile") }
             )
+        }
+
+        composable("profile"){
+            ProfilePage(
+                onNavigateToPostPage = { navController.navigate("post") },
+                onNavigateToMarketPage = { navController.navigate("market") },
+                onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
+            )
+
         }
 
 

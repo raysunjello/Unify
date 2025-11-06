@@ -25,13 +25,15 @@ import com.cs407.unify.ui.components.BottomTab
 fun PreviewMarketPage() {
     MarketPage(
         onNavigateToPostPage = {},
-        onNavigateToMainFeedPage = {}
+        onNavigateToMainFeedPage = {},
+        onNavigateToProfilePage = {}
     )
 }
 @Composable
 fun MarketPage(
     onNavigateToPostPage: () -> Unit,
-    onNavigateToMainFeedPage: () -> Unit
+    onNavigateToMainFeedPage: () -> Unit,
+    onNavigateToProfilePage: () -> Unit
 ) {
     // wrapped in box in order for current bottomnavbar implementation to work
     Box(
@@ -96,7 +98,7 @@ fun MarketPage(
             onSearch = {/* TODO */ },
             onPost = { onNavigateToPostPage() },
             onMarket = {/* currently on market page*/ },
-            onProfile = {/* TODO */ },
+            onProfile = { onNavigateToProfilePage() },
             modifier = Modifier.align(Alignment.BottomCenter)
         )
     }
