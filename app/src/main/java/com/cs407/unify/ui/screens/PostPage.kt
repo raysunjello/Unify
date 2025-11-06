@@ -24,7 +24,8 @@ import com.cs407.unify.ui.components.BottomTab
 fun PostPage(
     onNavigateToMainFeedPage: () -> Unit,
     onNavigateToMarketPage: () -> Unit,
-    onNavigateToProfilePage: () -> Unit
+    onNavigateToProfilePage: () -> Unit,
+    onNavigateToSearchPage: () -> Unit
 ) {
     var postTitle by remember { mutableStateOf("") }
     var hub by remember { mutableStateOf("") }
@@ -205,7 +206,7 @@ fun PostPage(
         UnifyBottomBar(
             current = BottomTab.Post,
             onHome = { onNavigateToMainFeedPage() },
-            onSearch = {/* TODO */},
+            onSearch = { onNavigateToSearchPage()},
             onPost = { /* currently on post page */ },
             onMarket = { onNavigateToMarketPage() },
             onProfile = {onNavigateToProfilePage()},

@@ -31,18 +31,20 @@ import com.cs407.unify.ui.components.UnifyBottomBar
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewProfileage() {
+fun PreviewProfilePage() {
     ProfilePage(
         onNavigateToPostPage = {},
         onNavigateToMarketPage = {},
-        onNavigateToMainFeedPage = {}
+        onNavigateToMainFeedPage = {},
+        onNavigateToSearchPage = {}
     )
 }
 @Composable
 fun ProfilePage(
     onNavigateToPostPage: () -> Unit,
     onNavigateToMarketPage: () -> Unit,
-    onNavigateToMainFeedPage: () -> Unit
+    onNavigateToMainFeedPage: () -> Unit,
+    onNavigateToSearchPage: () -> Unit
 ) {
 //    val drawerState = rememberDrawerState(DrawerValue.Closed)
 //    val scope = rememberCoroutineScope()
@@ -137,7 +139,7 @@ fun ProfilePage(
         UnifyBottomBar(
             current = BottomTab.Profile,
             onHome = {onNavigateToMainFeedPage()},
-            onSearch = {/* TODO */},
+            onSearch = { onNavigateToSearchPage() },
             onPost = { onNavigateToPostPage() },
             onMarket = { onNavigateToMarketPage() },
             onProfile = { /* currently on profile page */},

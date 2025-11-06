@@ -26,14 +26,16 @@ fun PreviewMarketPage() {
     MarketPage(
         onNavigateToPostPage = {},
         onNavigateToMainFeedPage = {},
-        onNavigateToProfilePage = {}
+        onNavigateToProfilePage = {},
+        onNavigateToSearchPage = {}
     )
 }
 @Composable
 fun MarketPage(
     onNavigateToPostPage: () -> Unit,
     onNavigateToMainFeedPage: () -> Unit,
-    onNavigateToProfilePage: () -> Unit
+    onNavigateToProfilePage: () -> Unit,
+    onNavigateToSearchPage: () -> Unit
 ) {
     // wrapped in box in order for current bottomnavbar implementation to work
     Box(
@@ -95,7 +97,7 @@ fun MarketPage(
         UnifyBottomBar(
             current = BottomTab.Market,
             onHome = { onNavigateToMainFeedPage() },
-            onSearch = {/* TODO */ },
+            onSearch = { onNavigateToSearchPage() },
             onPost = { onNavigateToPostPage() },
             onMarket = {/* currently on market page*/ },
             onProfile = { onNavigateToProfilePage() },

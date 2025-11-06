@@ -38,14 +38,16 @@ fun PreviewMainFeedPage() {
     MainFeedPage(
         onNavigateToPostPage = {},
         onNavigateToMarketPage = {},
-        onNavigateToProfilePage = {}
+        onNavigateToProfilePage = {},
+        onNavigateToSearchPage = {},
     )
 }
 @Composable
 fun MainFeedPage(
     onNavigateToPostPage: () -> Unit,
     onNavigateToMarketPage: () -> Unit,
-    onNavigateToProfilePage: () -> Unit
+    onNavigateToProfilePage: () -> Unit,
+    onNavigateToSearchPage: () -> Unit
 ){
     Box(
         modifier = Modifier.fillMaxSize()
@@ -177,7 +179,7 @@ fun MainFeedPage(
         UnifyBottomBar(
             current = BottomTab.Feed,
             onHome = {/* currently on home*/},
-            onSearch = {/* TODO */},
+            onSearch = { onNavigateToSearchPage() },
             onPost = { onNavigateToPostPage() },
             onMarket = { onNavigateToMarketPage() },
             onProfile = { onNavigateToProfilePage()},

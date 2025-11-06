@@ -9,6 +9,7 @@ import com.cs407.unify.ui.theme.UnifyTheme
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.cs407.unify.ui.screens.HomePage.SearchPage
 import com.cs407.unify.ui.screens.LoginPage
 import com.cs407.unify.ui.screens.MainFeedPage
 import com.cs407.unify.ui.screens.MarketPage
@@ -47,7 +48,8 @@ fun AppNavigation() {
             MainFeedPage(
                 onNavigateToPostPage = { navController.navigate("post") },
                 onNavigateToMarketPage = { navController.navigate("market") },
-                onNavigateToProfilePage = { navController.navigate("profile") }
+                onNavigateToProfilePage = { navController.navigate("profile") },
+                onNavigateToSearchPage = { navController.navigate("search") }
             )
         }
 
@@ -55,7 +57,8 @@ fun AppNavigation() {
             PostPage(
                 onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
                 onNavigateToMarketPage = { navController.navigate("market") },
-                onNavigateToProfilePage = { navController.navigate("profile") }
+                onNavigateToProfilePage = { navController.navigate("profile") },
+                onNavigateToSearchPage = { navController.navigate("search") }
             )
         }
 
@@ -63,7 +66,8 @@ fun AppNavigation() {
             MarketPage(
                 onNavigateToPostPage = { navController.navigate("post") },
                 onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
-                onNavigateToProfilePage = { navController.navigate("profile") }
+                onNavigateToProfilePage = { navController.navigate("profile") },
+                onNavigateToSearchPage = { navController.navigate("search") }
             )
         }
 
@@ -72,8 +76,17 @@ fun AppNavigation() {
                 onNavigateToPostPage = { navController.navigate("post") },
                 onNavigateToMarketPage = { navController.navigate("market") },
                 onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
+                onNavigateToSearchPage = { navController.navigate("search") }
             )
+        }
 
+        composable("search"){
+            SearchPage(
+                onNavigateToPostPage = { navController.navigate("post") },
+                onNavigateToMarketPage = { navController.navigate("market")},
+                onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
+                onNavigateToProfilePage = { navController.navigate("profile") }
+            )
         }
 
 
