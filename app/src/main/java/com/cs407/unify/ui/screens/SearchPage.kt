@@ -10,6 +10,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,6 +41,9 @@ fun SearchPage(
     onNavigateToMainFeedPage: () -> Unit,
     onNavigateToProfilePage: () -> Unit
 ) {
+
+    var prompt by remember { mutableStateOf("") }
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -47,8 +54,8 @@ fun SearchPage(
         ) {
 
             OutlinedTextField(
-                value = "",
-                onValueChange = {},
+                value = prompt,
+                onValueChange = {prompt = it},
                 placeholder = { Text("Search hubs...") },
                 singleLine = true,
                 modifier = Modifier
