@@ -17,60 +17,88 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cs407.unify.ui.components.UnifyBottomBar
+import com.cs407.unify.ui.components.BottomTab
 
+@Preview(showBackground = true)
 @Composable
-fun MarketPage() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(16.dp)
+fun PreviewMarketPage() {
+    MarketPage(
+        onNavigateToPostPage = {},
+        onNavigateToMainFeedPage = {}
+    )
+}
+@Composable
+fun MarketPage(
+    onNavigateToPostPage: () -> Unit,
+    onNavigateToMainFeedPage: () -> Unit
+) {
+    // wrapped in box in order for current bottomnavbar implementation to work
+    Box(
+        modifier = Modifier.fillMaxSize()
     ) {
-        //top bar with search and cart
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 24.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            //search bar
-            SearchBar(
-                modifier = Modifier.weight(1f)
-            )
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            //cart icon
-            Icon(
-                imageVector = Icons.Default.ShoppingCart,
-                contentDescription = "Shopping Cart",
-                modifier = Modifier
-                    .size(28.dp)
-                    .clickable { /* TODO: Navigate to cart */ },
-                tint = Color.Black
-            )
-        }
-
-        //category list
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxSize()
+                .background(Color.White)
+                .padding(16.dp)
         ) {
+            //top bar with search and cart
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 24.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                //search bar
+                SearchBar(
+                    modifier = Modifier.weight(1f)
+                )
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                //cart icon
+                Icon(
+                    imageVector = Icons.Default.ShoppingCart,
+                    contentDescription = "Shopping Cart",
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clickable { /* TODO: Navigate to cart */ },
+                    tint = Color.Black
+                )
+            }
+
+            //category list
             Column(
-                verticalArrangement = Arrangement.spacedBy(30.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CategoryItem("Tickets")
-                CategoryItem("Furniture")
-                CategoryItem("Textbooks")
-                CategoryItem("Notes")
-                CategoryItem("Other Stuff")
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(30.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CategoryItem("Tickets")
+                    CategoryItem("Furniture")
+                    CategoryItem("Textbooks")
+                    CategoryItem("Notes")
+                    CategoryItem("Other Stuff")
+                }
             }
         }
+
+        UnifyBottomBar(
+            current = BottomTab.Market,
+            onHome = { onNavigateToMainFeedPage() },
+            onSearch = {/* TODO */ },
+            onPost = { onNavigateToPostPage() },
+            onMarket = {/* currently on market page*/ },
+            onProfile = {/* TODO */ },
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 }
 

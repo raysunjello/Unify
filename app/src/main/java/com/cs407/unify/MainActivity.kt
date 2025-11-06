@@ -4,16 +4,16 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import com.cs407.unify.ui.theme.UnifyTheme
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.cs407.unify.ui.screens.LoginPage
+import com.cs407.unify.ui.screens.MainFeedPage
 import com.cs407.unify.ui.screens.MarketPage
 import com.cs407.unify.ui.screens.PostPage
-import com.cs407.unify.ui.theme.UnifyTheme
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,24 +21,50 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             UnifyTheme {
-                PostPage()
+                AppNavigation()
             }
         }
     }
 }
 
+//composable function responsible for navigation between screens
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun AppNavigation() {
+    val navController = rememberNavController()
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    UnifyTheme {
-        Greeting("Android")
+    NavHost(
+        navController = navController,
+        startDestination = "login" // display landing page on app start
+    ){
+        composable("login"){
+            LoginPage(
+                onNavigateToMainFeedPage = { navController.navigate("mainfeed") }
+            )
+        }
+
+        composable("mainfeed"){
+            MainFeedPage(
+                onNavigateToPostPage = { navController.navigate("post") },
+                onNavigateToMarketPage = { navController.navigate("market") }
+            )
+        }
+
+        composable("post"){
+            PostPage(
+                onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
+                onNavigateToMarketPage = { navController.navigate("market") }
+            )
+        }
+
+        composable("market"){
+            MarketPage(
+                onNavigateToPostPage = { navController.navigate("post") },
+                onNavigateToMainFeedPage = { navController.navigate("mainfeed") }
+            )
+        }
+
+
+
     }
+
 }
