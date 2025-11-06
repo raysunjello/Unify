@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.cs407.unify.ui.screens.MarketPage
 import com.cs407.unify.ui.screens.PostPage
+import com.cs407.unify.ui.screens.ProfilePage
 import com.cs407.unify.ui.theme.UnifyTheme
 
 class MainActivity : ComponentActivity() {
