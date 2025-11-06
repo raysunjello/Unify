@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "406387526581",
+    "project_id": "unify-b2400",
+    "storage_bucket": "unify-b2400.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:406387526581:android:037d7edd7e80bce51827fc",
+        "android_client_info": {
+          "package_name": "com.cs407.unify"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDECQBFhOMEvPCbKQ4ExunEsPcjNbl00Rw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
