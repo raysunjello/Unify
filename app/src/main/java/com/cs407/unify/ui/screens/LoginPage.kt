@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -21,12 +22,19 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cs407.unify.R
+import com.google.firebase.auth.FirebaseAuth
+import com.cs407.unify.auth.EmailResult
+import com.cs407.unify.auth.PasswordResult
+import com.cs407.unify.auth.checkEmail
+import com.cs407.unify.auth.checkPassword
+import com.cs407.unify.auth.signIn
 
 @Composable
 fun LoginPage(onNavigateToMainFeedPage: () -> Unit) {
-    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-
+    var error by remember { mutableStateOf<String?>(null) }
+    var isLoading by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -52,8 +60,8 @@ fun LoginPage(onNavigateToMainFeedPage: () -> Unit) {
 
         //username field
         TextField(
-            value = username,
-            onValueChange = { username = it },
+            value = email,
+            onValueChange = { email = it },
             placeholder = {
                 Text(
                     text = "Username...",
@@ -106,14 +114,69 @@ fun LoginPage(onNavigateToMainFeedPage: () -> Unit) {
         Text(
             text = "Forgot Password?",
             color = Color.Black,
-            modifier = Modifier.clickable{ /* TODO */}
+            modifier = Modifier.clickable{
+                FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+            }
         )
+
+        error?.let {
+            Text(
+                text = it,
+                color = Color.Red,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         //Login/Signup button
         Button(
-            onClick = { onNavigateToMainFeedPage() },
+            onClick = {
+                if (isLoading) return@Button
+
+
+                val emailResult = checkEmail(email)
+                if (emailResult != EmailResult.Valid) {
+                    error = when (emailResult) {
+                        EmailResult.Empty -> "Email cannot be empty"
+                        EmailResult.Invalid -> "Please enter a valid email address"
+                        else -> null
+                    }
+                    return@Button
+                }
+
+
+                val passwordResult = checkPassword(password)
+                if (passwordResult != PasswordResult.Valid) {
+                    error = when (passwordResult) {
+                        PasswordResult.Empty -> "Password cannot be empty"
+                        PasswordResult.Short -> "Password must be at least 5 characters"
+                        PasswordResult.Invalid ->
+                            "Password must contain upper, lower case letters and a digit"
+                        PasswordResult.Valid -> null
+                    }
+                    return@Button
+                }
+
+
+                error = null
+                isLoading = true
+
+                signIn(
+                    email = email,
+                    password = password,
+                    onSuccess = { uid ->
+                        isLoading = false
+
+                        onNavigateToMainFeedPage()
+                    },
+                    onFailure = { msg ->
+                        isLoading = false
+                        error = msg
+                    }
+                )
+            },
+            enabled = !isLoading,
             modifier = Modifier
                 .width(250.dp)
                 .height(56.dp),
@@ -123,7 +186,7 @@ fun LoginPage(onNavigateToMainFeedPage: () -> Unit) {
             shape = RoundedCornerShape(28.dp)
         ) {
             Text(
-                text = "Login/Signup",
+                text = if (isLoading) "Loading..." else "Login/Signup",
                 fontSize = 25.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
