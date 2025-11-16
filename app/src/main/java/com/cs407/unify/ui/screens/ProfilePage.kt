@@ -37,7 +37,8 @@ fun PreviewProfilePage() {
         onNavigateToPostPage = {},
         onNavigateToMarketPage = {},
         onNavigateToMainFeedPage = {},
-        onNavigateToSearchPage = {}
+        onNavigateToSearchPage = {},
+        onNavigateToMyPosts = {}
     )
 }
 @Composable
@@ -45,7 +46,8 @@ fun ProfilePage(
     onNavigateToPostPage: () -> Unit,
     onNavigateToMarketPage: () -> Unit,
     onNavigateToMainFeedPage: () -> Unit,
-    onNavigateToSearchPage: () -> Unit
+    onNavigateToSearchPage: () -> Unit,
+    onNavigateToMyPosts: () -> Unit,
 ) {
 //    val drawerState = rememberDrawerState(DrawerValue.Closed)
 //    val scope = rememberCoroutineScope()
@@ -100,7 +102,7 @@ fun ProfilePage(
                     Text(
                         text = "MY POSTS",
                         style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(25.dp)
+                        modifier = Modifier.padding(25.dp).clickable(onClick = onNavigateToMyPosts)
                     )
                 }
                 ElevatedCard(

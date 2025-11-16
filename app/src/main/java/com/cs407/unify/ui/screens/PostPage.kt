@@ -1,5 +1,6 @@
 package com.cs407.unify.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -12,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -19,6 +21,11 @@ import androidx.compose.ui.unit.sp
 import com.cs407.unify.R
 import com.cs407.unify.ui.components.UnifyBottomBar
 import com.cs407.unify.ui.components.BottomTab
+import com.cs407.unify.ui.components.Thread
+import com.cs407.unify.ui.components.ThreadCard
+import com.cs407.unify.ui.components.ThreadStore
+import java.util.UUID
+
 
 @Composable
 fun PostPage(
@@ -32,6 +39,7 @@ fun PostPage(
     var body by remember { mutableStateOf("") }
     var addImage by remember { mutableStateOf(false) }
     var postAnon by remember { mutableStateOf(false) }
+    var context = LocalContext.current
 
     // wrapped in box in order for current bottomnavbar implementation to work
     Box(
@@ -185,7 +193,19 @@ fun PostPage(
 
             //POST button
             Button(
-                onClick = { /* TODO: post something, implement later via backend */ },
+                onClick = {
+                    if (postTitle.isBlank() || body.isBlank() || hub.isBlank()) {
+                        Toast.makeText(
+                            context,
+                            "Please fill all fields",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        val id = UUID.randomUUID().toString()
+                        val newThread = Thread(postTitle, body, hub.toInt())
+                        ThreadStore.threads[id] = newThread
+                    }
+                },
                 modifier = Modifier
                     .width(200.dp)
                     .height(56.dp),

@@ -38,7 +38,7 @@ fun ThreadCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 10.dp, vertical = 4.dp)
-            .combinedClickable(onClick = { TODO() }),
+            .combinedClickable(onClick = { TODO() }), // make screen and send thread
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.Unspecified, // TODO
@@ -46,11 +46,11 @@ fun ThreadCard(
     ) {
         Column(modifier = Modifier.padding(10.dp)) {
             Text(
-                text = "TITLE", fontWeight = FontWeight.Bold
+                text = thread.title, fontWeight = FontWeight.Bold
             ) // TITLE
             Text(
-                text = "ABSTRACT", fontWeight = FontWeight.Thin
-            ) // ABSTRACT
+                text = thread.body, fontWeight = FontWeight.Thin
+            ) // ABSTRACT / BODY TODO()
         }
     }
 }
