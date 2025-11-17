@@ -9,13 +9,15 @@ import com.cs407.unify.ui.theme.UnifyTheme
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.cs407.unify.ui.components.Thread
 import com.cs407.unify.ui.screens.HomePage.SearchPage
 import com.cs407.unify.ui.screens.LoginPage
 import com.cs407.unify.ui.screens.MainFeedPage
 import com.cs407.unify.ui.screens.MarketPage
 import com.cs407.unify.ui.screens.PostPage
 import com.cs407.unify.ui.screens.ProfilePage
-import com.cs407.unify.ui.screens.ProfilePagePosts
+import com.cs407.unify.ui.screens.ThreadPage
+import com.cs407.unify.ui.screens.profile.ProfilePagePosts
 
 
 class MainActivity : ComponentActivity() {
@@ -93,9 +95,16 @@ fun AppNavigation() {
 
         composable("my_posts") {
             ProfilePagePosts (
-                onExit = {navController.navigate("profile")}
+                onExit = {navController.navigate("profile")},
+                onClick = {navController.navigate("thread")}
             )
 
+        }
+
+        composable("thread") {
+            ThreadPage(
+                onExit = {navController.navigate("my_posts")}
+            )
         }
 
 

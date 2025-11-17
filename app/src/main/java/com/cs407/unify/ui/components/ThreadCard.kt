@@ -28,7 +28,7 @@ import java.util.Locale
 
 @Composable
 fun ThreadCard(
-    thread: Thread, onClick: () -> Unit, onExit: () -> Unit
+    thread: Thread, onClick: () -> Unit
 ) {
 
     val pattern = "yyyy-MM-dd HH:mm"
@@ -38,7 +38,7 @@ fun ThreadCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 10.dp, vertical = 4.dp)
-            .combinedClickable(onClick = { TODO() }), // make screen and send thread
+            .combinedClickable(onClick = { onClick() }),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.Unspecified, // TODO
@@ -54,7 +54,3 @@ fun ThreadCard(
         }
     }
 }
-
-// MAKE HUB CARD
-
-// test

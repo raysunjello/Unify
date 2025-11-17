@@ -1,6 +1,6 @@
-package com.cs407.unify.ui.screens
+package com.cs407.unify.ui.screens.profile
 
-import androidx.compose.foundation.background
+import android.R.attr.onClick
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,15 +22,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.cs407.unify.ui.components.ThreadCard
 import com.cs407.unify.ui.components.ThreadStore
+import com.cs407.unify.ui.screens.ThreadPage
 
 @Composable
-fun ProfilePagePosts(onExit: () -> Unit) {
+fun ProfilePagePosts(onExit: () -> Unit, onClick: () -> Unit) {
     var threadState by remember { mutableStateOf(ThreadStore.threads.toMutableMap()) }
 
     Surface(
@@ -63,7 +63,7 @@ fun ProfilePagePosts(onExit: () -> Unit) {
                     modifier = Modifier.padding(all = 20.dp)
                 ) { 
                    items(threadState.entries.toList()) { thread ->
-                       ThreadCard(thread.value, onExit, onExit) // TODO : make clickable
+                       ThreadCard(thread.value, onClick) // TODO : fix
                    }
                    
                 }
