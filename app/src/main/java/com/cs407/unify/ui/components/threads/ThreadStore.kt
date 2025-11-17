@@ -1,13 +1,12 @@
-package com.cs407.unify.ui.components
+package com.cs407.unify.ui.components.threads
 
 import java.io.Serializable
-import kotlin.collections.removeAll
 
 data class Thread(
     val title: String,
     val body: String,
-    val hub: Int
-    // TODO : add comment section??
+    val hub: String // TODO : change to backend organization??
+    // TODO : add comment section
 ) : Serializable
 
 object ThreadStore {

@@ -1,4 +1,4 @@
-package com.cs407.unify.ui.screens
+package com.cs407.unify.ui.screens.profile
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -73,13 +73,13 @@ fun ProfilePage(
             )
 
             Text(
-                text = "Username",
+                text = "Username", // TODO replace w string
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(top = 16.dp),
                 style = MaterialTheme.typography.displaySmall
             )
             Text(
-                text = "University",
+                text = "University", // TODO replace w string
                 modifier = Modifier.padding(vertical = 8.dp),
                 style = MaterialTheme.typography.bodyLarge
             )
@@ -100,8 +100,9 @@ fun ProfilePage(
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
                 ) {
                     Text(
-                        text = "MY POSTS",
+                        text = "MY POSTS", // TODO replace w string
                         style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(25.dp).clickable(onClick = onNavigateToMyPosts)
                     )
                 }
@@ -114,8 +115,9 @@ fun ProfilePage(
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
                 ) {
                     Text(
-                        text = "SAVED STUFF",
+                        text = "SAVED STUFF", // TODO replace w string
                         style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(25.dp)
                     )
                 }
@@ -128,7 +130,8 @@ fun ProfilePage(
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
                 ) {
                     Text(
-                        text = "RECENT ACTIVITY",
+                        text = "RECENT ACTIVITY", // TODO replace w string
+                        fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.padding(25.dp)
                     )

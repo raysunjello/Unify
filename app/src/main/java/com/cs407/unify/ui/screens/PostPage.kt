@@ -21,9 +21,8 @@ import androidx.compose.ui.unit.sp
 import com.cs407.unify.R
 import com.cs407.unify.ui.components.UnifyBottomBar
 import com.cs407.unify.ui.components.BottomTab
-import com.cs407.unify.ui.components.Thread
-import com.cs407.unify.ui.components.ThreadCard
-import com.cs407.unify.ui.components.ThreadStore
+import com.cs407.unify.ui.components.threads.Thread
+import com.cs407.unify.ui.components.threads.ThreadStore
 import java.util.UUID
 
 
@@ -141,7 +140,7 @@ fun PostPage(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            //add image toggle
+            //TODO : add image toggle + camera feature
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -202,8 +201,18 @@ fun PostPage(
                         ).show()
                     } else {
                         val id = UUID.randomUUID().toString()
-                        val newThread = Thread(postTitle, body, hub.toInt())
+                        val newThread = Thread(postTitle, body, hub)
                         ThreadStore.threads[id] = newThread
+
+                        postTitle = ""
+                        body = ""
+                        hub = ""
+
+                        Toast.makeText(
+                            context,
+                            "Post saved!", // TODO (LATER) : change to uploaded when added to feed
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 },
                 modifier = Modifier

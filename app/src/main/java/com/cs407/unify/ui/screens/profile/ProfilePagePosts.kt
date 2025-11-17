@@ -1,6 +1,5 @@
 package com.cs407.unify.ui.screens.profile
 
-import android.R.attr.onClick
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,9 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.cs407.unify.ui.components.ThreadCard
-import com.cs407.unify.ui.components.ThreadStore
-import com.cs407.unify.ui.screens.ThreadPage
+import com.cs407.unify.ui.components.threads.ThreadCard
+import com.cs407.unify.ui.components.threads.ThreadStore
 
 @Composable
 fun ProfilePagePosts(onExit: () -> Unit, onClick: () -> Unit) {
@@ -55,7 +53,7 @@ fun ProfilePagePosts(onExit: () -> Unit, onClick: () -> Unit) {
                 modifier = Modifier.align(Alignment.TopCenter).padding(top = 20.dp)
             ) {
                 Text(
-                    text = "MY POSTS",
+                    text = "MY POSTS", // TODO replace w string
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold 
                 )
@@ -63,7 +61,7 @@ fun ProfilePagePosts(onExit: () -> Unit, onClick: () -> Unit) {
                     modifier = Modifier.padding(all = 20.dp)
                 ) { 
                    items(threadState.entries.toList()) { thread ->
-                       ThreadCard(thread.value, onClick) // TODO : fix
+                       ThreadCard(thread.value, onClick) // TODO : implement click -> ThreadPage
                    }
                    
                 }
