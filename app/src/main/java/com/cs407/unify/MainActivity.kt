@@ -16,7 +16,9 @@ import com.cs407.unify.ui.screens.LoginPage
 import com.cs407.unify.ui.screens.MainFeedPage
 import com.cs407.unify.ui.screens.MarketPage
 import com.cs407.unify.ui.screens.PostPage
-import com.cs407.unify.ui.screens.ProfilePage
+import com.cs407.unify.ui.screens.profile.ProfilePage
+import com.cs407.unify.ui.components.threads.ThreadPage
+import com.cs407.unify.ui.screens.profile.ProfilePagePosts
 import com.cs407.unify.ui.screens.RegistrationPage
 
 
@@ -98,7 +100,8 @@ fun AppNavigation() {
                 onNavigateToPostPage = { navController.navigate("post") },
                 onNavigateToMarketPage = { navController.navigate("market") },
                 onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
-                onNavigateToSearchPage = { navController.navigate("search") }
+                onNavigateToSearchPage = { navController.navigate("search") },
+                onNavigateToMyPosts = { navController.navigate("my_posts")}
             )
         }
 
@@ -108,6 +111,20 @@ fun AppNavigation() {
                 onNavigateToMarketPage = { navController.navigate("market")},
                 onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
                 onNavigateToProfilePage = { navController.navigate("profile") }
+            )
+        }
+
+        composable("my_posts") {
+            ProfilePagePosts (
+                onExit = {navController.navigate("profile")},
+                onClick = {navController.navigate("thread")}
+            )
+
+        }
+
+        composable("thread") {
+            ThreadPage(
+                onExit = {navController.navigate("my_posts")}
             )
         }
 

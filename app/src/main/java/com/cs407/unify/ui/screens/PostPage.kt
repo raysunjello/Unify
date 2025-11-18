@@ -1,5 +1,6 @@
 package com.cs407.unify.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -12,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -19,6 +21,10 @@ import androidx.compose.ui.unit.sp
 import com.cs407.unify.R
 import com.cs407.unify.ui.components.UnifyBottomBar
 import com.cs407.unify.ui.components.BottomTab
+import com.cs407.unify.ui.components.threads.Thread
+import com.cs407.unify.ui.components.threads.ThreadStore
+import java.util.UUID
+
 
 @Composable
 fun PostPage(
@@ -32,6 +38,7 @@ fun PostPage(
     var body by remember { mutableStateOf("") }
     var addImage by remember { mutableStateOf(false) }
     var postAnon by remember { mutableStateOf(false) }
+    var context = LocalContext.current
 
     // wrapped in box in order for current bottomnavbar implementation to work
     Box(
@@ -133,7 +140,7 @@ fun PostPage(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            //add image toggle
+            //TODO : add image toggle + camera feature
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -185,7 +192,29 @@ fun PostPage(
 
             //POST button
             Button(
-                onClick = { /* TODO: post something, implement later via backend */ },
+                onClick = {
+                    if (postTitle.isBlank() || body.isBlank() || hub.isBlank()) {
+                        Toast.makeText(
+                            context,
+                            "Please fill all fields",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        val id = UUID.randomUUID().toString()
+                        val newThread = Thread(postTitle, body, hub)
+                        ThreadStore.threads[id] = newThread
+
+                        postTitle = ""
+                        body = ""
+                        hub = ""
+
+                        Toast.makeText(
+                            context,
+                            "Post saved!", // TODO (LATER) : change to uploaded when added to feed
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                },
                 modifier = Modifier
                     .width(200.dp)
                     .height(56.dp),

@@ -1,7 +1,8 @@
-package com.cs407.unify.ui.screens
+package com.cs407.unify.ui.screens.profile
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -36,7 +37,8 @@ fun PreviewProfilePage() {
         onNavigateToPostPage = {},
         onNavigateToMarketPage = {},
         onNavigateToMainFeedPage = {},
-        onNavigateToSearchPage = {}
+        onNavigateToSearchPage = {},
+        onNavigateToMyPosts = {}
     )
 }
 @Composable
@@ -44,7 +46,8 @@ fun ProfilePage(
     onNavigateToPostPage: () -> Unit,
     onNavigateToMarketPage: () -> Unit,
     onNavigateToMainFeedPage: () -> Unit,
-    onNavigateToSearchPage: () -> Unit
+    onNavigateToSearchPage: () -> Unit,
+    onNavigateToMyPosts: () -> Unit,
 ) {
 //    val drawerState = rememberDrawerState(DrawerValue.Closed)
 //    val scope = rememberCoroutineScope()
@@ -70,13 +73,13 @@ fun ProfilePage(
             )
 
             Text(
-                text = "Username",
+                text = "Username", // TODO replace w string
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(top = 16.dp),
                 style = MaterialTheme.typography.displaySmall
             )
             Text(
-                text = "University",
+                text = "University", // TODO replace w string
                 modifier = Modifier.padding(vertical = 8.dp),
                 style = MaterialTheme.typography.bodyLarge
             )
@@ -97,8 +100,24 @@ fun ProfilePage(
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
                 ) {
                     Text(
-                        text = "MY POSTS",
+                        text = "MY POSTS", // TODO replace w string
                         style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(25.dp).clickable(onClick = onNavigateToMyPosts)
+                    )
+                }
+                ElevatedCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(16.dp),
+                    shape = MaterialTheme.shapes.extraLarge,
+                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+                ) {
+                    Text(
+                        text = "SAVED STUFF", // TODO replace w string
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(25.dp)
                     )
                 }
@@ -111,21 +130,8 @@ fun ProfilePage(
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
                 ) {
                     Text(
-                        text = "SAVED STUFF",
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(25.dp)
-                    )
-                }
-                ElevatedCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .padding(16.dp),
-                    shape = MaterialTheme.shapes.extraLarge,
-                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
-                ) {
-                    Text(
-                        text = "RECENT ACTIVITY",
+                        text = "RECENT ACTIVITY", // TODO replace w string
+                        fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.padding(25.dp)
                     )
