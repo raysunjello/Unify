@@ -19,6 +19,11 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,6 +34,9 @@ import androidx.compose.ui.unit.dp
 import com.cs407.unify.R
 import com.cs407.unify.ui.components.BottomTab
 import com.cs407.unify.ui.components.UnifyBottomBar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.cs407.unify.data.UserProfile
 
 @Preview(showBackground = true)
 @Composable
@@ -51,6 +59,30 @@ fun ProfilePage(
 ) {
 //    val drawerState = rememberDrawerState(DrawerValue.Closed)
 //    val scope = rememberCoroutineScope()
+    val auth = FirebaseAuth.getInstance()
+    val uid = auth.currentUser?.uid
+
+    var username by remember { mutableStateOf("Loading...") }
+    var university by remember { mutableStateOf("Loading...") }
+
+    LaunchedEffect(uid) {
+        if (uid != null) {
+            FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(uid)
+                .get()
+                .addOnSuccessListener { snapshot ->
+                    val profile = snapshot.toObject(UserProfile::class.java)
+
+                    username = profile?.username ?: "Error loading user"
+                    university = profile?.university ?: "Error loading user"
+
+                }
+                .addOnFailureListener {
+                    username = "Error loading user"
+                }
+        }
+    }
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -73,13 +105,13 @@ fun ProfilePage(
             )
 
             Text(
-                text = "Username", // TODO replace w string
+                text = username, // TODO replace w string
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(top = 16.dp),
                 style = MaterialTheme.typography.displaySmall
             )
             Text(
-                text = "University", // TODO replace w string
+                text = university, // TODO replace w string
                 modifier = Modifier.padding(vertical = 8.dp),
                 style = MaterialTheme.typography.bodyLarge
             )

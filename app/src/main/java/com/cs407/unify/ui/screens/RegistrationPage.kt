@@ -92,10 +92,9 @@ fun RegistrationPage(
                         isLoading = false
 
                         if (task.isSuccessful) {
-                            error = "SUCCESS SAVING PROFILE"
                             onRegistrationComplete()
                         } else {
-                            error = "ERROR: " + (task.exception?.message ?: "Failed to save profile.")
+                            error = task.exception?.message ?: "Failed to save profile."
                         }
                     }
             },
