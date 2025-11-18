@@ -26,9 +26,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.cs407.unify.ui.components.threads.ThreadCard
 import com.cs407.unify.ui.components.threads.ThreadStore
+import com.cs407.unify.ui.components.threads.Thread
 
 @Composable
-fun ProfilePagePosts(onExit: () -> Unit, onClick: () -> Unit) {
+fun ProfilePagePosts(onExit: () -> Unit, onClick: (Thread) -> Unit) {
     var threadState by remember { mutableStateOf(ThreadStore.threads.toMutableMap()) }
 
     Surface(
@@ -59,10 +60,10 @@ fun ProfilePagePosts(onExit: () -> Unit, onClick: () -> Unit) {
                 )
                 LazyColumn (
                     modifier = Modifier.padding(all = 20.dp)
-                ) { 
-                   items(threadState.entries.toList()) { thread ->
-                       ThreadCard(thread.value, onClick) // TODO : implement click -> ThreadPage
-                   }
+                ) {
+                    items(threadState.entries.toList()) { entry ->
+                        ThreadCard(entry.value, onClick = { onClick(entry.value) })
+                    }
                    
                 }
             }

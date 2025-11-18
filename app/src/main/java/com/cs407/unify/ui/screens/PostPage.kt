@@ -6,6 +6,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -152,16 +154,29 @@ fun PostPage(
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )
-                Switch(
-                    checked = addImage,
-                    onCheckedChange = { addImage = it },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
-                        checkedTrackColor = Color.Gray,
-                        uncheckedThumbColor = Color.White,
-                        uncheckedTrackColor = Color.LightGray
+                IconButton(
+                    onClick = {
+                        // TODO: Implement image picker/camera
+                        Toast.makeText(
+                            context,
+                            "TODO",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    },
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(
+                            color = Color.LightGray,
+                            shape = CircleShape
+                        )
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = "Add Image",
+                        tint = Color.Black,
+                        modifier = Modifier.size(24.dp)
                     )
-                )
+                }
             }
 
             //post anonymous toggle

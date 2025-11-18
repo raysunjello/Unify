@@ -11,6 +11,7 @@ data class Thread(
 
 object ThreadStore {
     val threads: HashMap<String, Thread> = hashMapOf()
+    var selectedThread: Thread? = null
 }
 //// Object to hold and manage favorite cards
 //object FavoriteStore {

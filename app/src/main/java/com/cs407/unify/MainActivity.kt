@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavType
 import com.cs407.unify.ui.theme.UnifyTheme
 import androidx.navigation.compose.NavHost
@@ -18,6 +19,7 @@ import com.cs407.unify.ui.screens.MarketPage
 import com.cs407.unify.ui.screens.PostPage
 import com.cs407.unify.ui.screens.profile.ProfilePage
 import com.cs407.unify.ui.components.threads.ThreadPage
+import com.cs407.unify.ui.components.threads.ThreadStore
 import com.cs407.unify.ui.screens.profile.ProfilePagePosts
 import com.cs407.unify.ui.screens.RegistrationPage
 
@@ -117,15 +119,28 @@ fun AppNavigation() {
         composable("my_posts") {
             ProfilePagePosts (
                 onExit = {navController.navigate("profile")},
-                onClick = {navController.navigate("thread")}
+                onClick = { thread ->
+                    // Store selected thread temporarily
+                    ThreadStore.selectedThread = thread
+                    navController.navigate("thread")
+                }
             )
-
         }
 
         composable("thread") {
-            ThreadPage(
-                onExit = {navController.navigate("my_posts")}
-            )
+            val selectedThread = ThreadStore.selectedThread
+            if (selectedThread != null) {
+                ThreadPage(
+                    thread = selectedThread,
+                    onExit = {navController.navigate("my_posts")}
+                )
+            } else {
+                // Handle case where no thread is selected
+                // Navigate back or show error
+                LaunchedEffect(Unit) {
+                    navController.navigate("my_posts")
+                }
+            }
         }
 
 

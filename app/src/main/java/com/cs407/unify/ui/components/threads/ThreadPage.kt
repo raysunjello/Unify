@@ -27,7 +27,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun ThreadPage(onExit: () -> Unit, modifier: Modifier = Modifier) {
+fun ThreadPage(
+    thread: Thread,
+    onExit: () -> Unit,
+    modifier: Modifier = Modifier
+) {
 
     var comment by remember { mutableStateOf("") }
 
@@ -62,16 +66,23 @@ fun ThreadPage(onExit: () -> Unit, modifier: Modifier = Modifier) {
         ) {
             // TODO : replace with REAL thread title (thread.title)
             Text(
-                text = "Thread Title",
+                text = thread.title,
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(16.dp)
             )
+            Text(
+                text = "Hub: ${thread.hub}",
+                fontSize = 16.sp,
+                color = Color.Gray,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
             HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(10.dp))
             // TODO : replace with REAL thread body (thread.body)
             Text(
-                text = "thread body",
+                text = thread.body,
                 fontSize = 20.sp,
                 color = Color.Unspecified,
                 fontWeight = FontWeight.Normal,
