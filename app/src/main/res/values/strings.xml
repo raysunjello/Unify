@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Unify</string>
+    <string name="database">Database</string>
 </resources>

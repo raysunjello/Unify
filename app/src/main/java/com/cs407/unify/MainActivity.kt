@@ -5,16 +5,19 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
 import com.cs407.unify.ui.theme.UnifyTheme
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.cs407.unify.ui.screens.HomePage.SearchPage
 import com.cs407.unify.ui.screens.LoginPage
 import com.cs407.unify.ui.screens.MainFeedPage
 import com.cs407.unify.ui.screens.MarketPage
 import com.cs407.unify.ui.screens.PostPage
 import com.cs407.unify.ui.screens.ProfilePage
+import com.cs407.unify.ui.screens.RegistrationPage
 
 
 class MainActivity : ComponentActivity() {
@@ -40,7 +43,26 @@ fun AppNavigation() {
     ){
         composable("login"){
             LoginPage(
-                onNavigateToMainFeedPage = { navController.navigate("mainfeed") }
+                onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
+                onNavigateToRegistrationPage = { uid -> navController.navigate("register/$uid") }
+            )
+        }
+
+        composable(
+            route = "register/{uid}",
+            arguments = listOf(
+                navArgument("uid") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val uid = backStackEntry.arguments?.getString("uid") ?: ""
+
+            RegistrationPage(
+                uid = uid,
+                onRegistrationComplete = {
+                    navController.navigate("mainfeed") {
+                        popUpTo("login") { inclusive = true }
+                    }
+                }
             )
         }
 

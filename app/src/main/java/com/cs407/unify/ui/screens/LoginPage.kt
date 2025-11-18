@@ -30,7 +30,10 @@ import com.cs407.unify.auth.checkPassword
 import com.cs407.unify.auth.signIn
 
 @Composable
-fun LoginPage(onNavigateToMainFeedPage: () -> Unit) {
+fun LoginPage(
+    onNavigateToMainFeedPage: () -> Unit,
+    onNavigateToRegistrationPage: (String) -> Unit
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
@@ -165,10 +168,14 @@ fun LoginPage(onNavigateToMainFeedPage: () -> Unit) {
                 signIn(
                     email = email,
                     password = password,
-                    onSuccess = { uid ->
+                    onExistingUser = { uid ->
                         isLoading = false
 
                         onNavigateToMainFeedPage()
+                    },
+                    onNewUser = { uid ->
+                        isLoading = false
+                        onNavigateToRegistrationPage(uid)
                     },
                     onFailure = { msg ->
                         isLoading = false
