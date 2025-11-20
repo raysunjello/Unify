@@ -13,9 +13,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,7 +50,8 @@ fun PreviewProfilePage() {
         onNavigateToMarketPage = {},
         onNavigateToMainFeedPage = {},
         onNavigateToSearchPage = {},
-        onNavigateToMyPosts = {}
+        onNavigateToMyPosts = {},
+        onNavigateToSettingsPage = {},
     )
 }
 @Composable
@@ -56,6 +61,7 @@ fun ProfilePage(
     onNavigateToMainFeedPage: () -> Unit,
     onNavigateToSearchPage: () -> Unit,
     onNavigateToMyPosts: () -> Unit,
+    onNavigateToSettingsPage: () -> Unit,
 ) {
 //    val drawerState = rememberDrawerState(DrawerValue.Closed)
 //    val scope = rememberCoroutineScope()
@@ -87,6 +93,18 @@ fun ProfilePage(
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
+
+        IconButton(
+            onClick = { onNavigateToSettingsPage() },
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Settings,
+                contentDescription = "Settings"
+            )
+        }
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

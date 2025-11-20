@@ -6,12 +6,18 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import com.cs407.unify.ui.theme.UnifyTheme
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.cs407.unify.ViewModels.UserViewModel
+import com.cs407.unify.data.AppDatabase
 import com.cs407.unify.ui.screens.HomePage.SearchPage
 import com.cs407.unify.ui.screens.LoginPage
 import com.cs407.unify.ui.screens.MainFeedPage
@@ -22,6 +28,8 @@ import com.cs407.unify.ui.components.threads.ThreadPage
 import com.cs407.unify.ui.components.threads.ThreadStore
 import com.cs407.unify.ui.screens.profile.ProfilePagePosts
 import com.cs407.unify.ui.screens.RegistrationPage
+import com.cs407.unify.ui.screens.profile.SettingsPage
+import androidx.lifecycle.ViewModelProvider
 
 
 class MainActivity : ComponentActivity() {
@@ -40,6 +48,27 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+
+
+    val context = LocalContext.current
+
+    // Build the database and DAOs once for this composition
+    val appDatabase = remember { AppDatabase.getDatabase(context) }
+    val userDao = remember { appDatabase.userDao() }
+    val deleteDao = remember { appDatabase.deleteDao() }
+
+    // Create UserViewModel with a custom factory that passes the DAOs
+    val userViewModel: UserViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                if (modelClass.isAssignableFrom(UserViewModel::class.java)) {
+                    @Suppress("UNCHECKED_CAST")
+                    return UserViewModel(userDao, deleteDao) as T
+                }
+                throw IllegalArgumentException("Unknown ViewModel class")
+            }
+        }
+    )
 
     NavHost(
         navController = navController,
@@ -103,7 +132,8 @@ fun AppNavigation() {
                 onNavigateToMarketPage = { navController.navigate("market") },
                 onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
                 onNavigateToSearchPage = { navController.navigate("search") },
-                onNavigateToMyPosts = { navController.navigate("my_posts")}
+                onNavigateToMyPosts = { navController.navigate("my_posts")},
+                onNavigateToSettingsPage = {navController.navigate("settings")}
             )
         }
 
@@ -141,6 +171,12 @@ fun AppNavigation() {
                     navController.navigate("my_posts")
                 }
             }
+        }
+
+        composable("settings") {
+            SettingsPage(
+                navController = navController,
+                userViewModel = userViewModel)
         }
 
 
