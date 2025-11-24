@@ -13,7 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.cs407.unify.ui.screens.HomePage.SearchPage
-import com.cs407.unify.ui.screens.LoginPage
+import com.cs407.unify.ui.screens.login.LoginPage
 import com.cs407.unify.ui.screens.MainFeedPage
 import com.cs407.unify.ui.screens.MarketPage
 import com.cs407.unify.ui.screens.PostPage
@@ -21,7 +21,7 @@ import com.cs407.unify.ui.screens.profile.ProfilePage
 import com.cs407.unify.ui.components.threads.ThreadPage
 import com.cs407.unify.ui.components.threads.ThreadStore
 import com.cs407.unify.ui.screens.profile.ProfilePagePosts
-import com.cs407.unify.ui.screens.RegistrationPage
+import com.cs407.unify.ui.screens.login.RegistrationPage
 
 
 class MainActivity : ComponentActivity() {
