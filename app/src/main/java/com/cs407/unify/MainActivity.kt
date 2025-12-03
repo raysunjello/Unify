@@ -30,6 +30,7 @@ import com.cs407.unify.ui.screens.profile.ProfilePagePosts
 import com.cs407.unify.ui.screens.login.RegistrationPage
 import com.cs407.unify.ui.screens.profile.SettingsPage
 import androidx.lifecycle.ViewModelProvider
+import com.cs407.unify.ui.screens.profile.SavedThreadsPage
 
 
 class MainActivity : ComponentActivity() {
@@ -133,7 +134,8 @@ fun AppNavigation() {
                 onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
                 onNavigateToSearchPage = { navController.navigate("search") },
                 onNavigateToMyPosts = { navController.navigate("my_posts")},
-                onNavigateToSettingsPage = {navController.navigate("settings")}
+                onNavigateToSettingsPage = {navController.navigate("settings")},
+                onNavigateToSavedStuff = { navController.navigate("saved_stuff")}
             )
         }
 
@@ -152,17 +154,29 @@ fun AppNavigation() {
                 onClick = { thread ->
                     // Store selected thread temporarily
                     ThreadStore.selectedThread = thread
-                    navController.navigate("thread")
+                    navController.navigate("thread/my_posts")
                 }
             )
         }
 
-        composable("thread") {
+        composable(
+            route = "thread/{source}",
+            arguments = listOf(
+                navArgument("source") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val source = backStackEntry.arguments?.getString("source") ?: "my_posts"
             val selectedThread = ThreadStore.selectedThread
             if (selectedThread != null) {
                 ThreadPage(
                     thread = selectedThread,
-                    onExit = {navController.navigate("my_posts")}
+                    onExit = {
+                        when (source) {
+                            "saved_stuff" -> navController.navigate("saved_stuff")
+                            "my_posts" -> navController.navigate("my_posts")
+                            else -> navController.navigate("my_posts")
+                        }
+                    }
                 )
             } else {
                 // Handle case where no thread is selected
@@ -179,8 +193,15 @@ fun AppNavigation() {
                 userViewModel = userViewModel)
         }
 
-
-
+        composable("saved_stuff") {
+            SavedThreadsPage(
+                onExit = { navController.navigate("profile") },
+                onClick = { thread ->
+                    ThreadStore.selectedThread = thread
+                    navController.navigate("thread/saved_stuff")
+                }
+            )
+        }
     }
 
 }
