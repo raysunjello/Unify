@@ -21,15 +21,20 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cs407.unify.R
+import com.cs407.unify.ViewModels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.cs407.unify.auth.EmailResult
 import com.cs407.unify.auth.PasswordResult
 import com.cs407.unify.auth.checkEmail
 import com.cs407.unify.auth.checkPassword
 import com.cs407.unify.auth.signIn
+import com.google.firebase.firestore.FirebaseFirestore
+import com.cs407.unify.data.UserState
+import com.cs407.unify.data.UserProfile
 
 @Composable
 fun LoginPage(
+    userViewModel: UserViewModel,
     onNavigateToMainFeedPage: () -> Unit,
     onNavigateToRegistrationPage: (String) -> Unit
 ) {
@@ -66,7 +71,7 @@ fun LoginPage(
             onValueChange = { email = it },
             placeholder = {
                 Text(
-                    text = "Username...",
+                    text = "Email",
                     color = Color.Gray
                 )
             },
@@ -170,10 +175,62 @@ fun LoginPage(
                     onExistingUser = { uid ->
                         isLoading = false
 
-                        onNavigateToMainFeedPage()
+                        val auth = FirebaseAuth.getInstance()
+                        val currentEmail = auth.currentUser?.email ?: email
+                        val db = FirebaseFirestore.getInstance()
+
+                        db.collection("users")
+                            .document(uid)
+                            .get()
+                            .addOnSuccessListener { document ->
+                                val profile = document.toObject(UserProfile::class.java)
+
+                                if (profile != null) {
+                                    userViewModel.setUser(
+                                        UserState(
+                                            uid = profile.uid,
+                                            email = profile.email,
+                                            username = profile.username,
+                                            university = profile.university,
+                                            isLoggedIn = true
+                                        )
+                                    )
+                                } else {
+                                    userViewModel.setUser(
+                                        UserState(
+                                            uid = uid,
+                                            email = currentEmail,
+                                            isLoggedIn = true
+                                        )
+                                    )
+                                }
+
+                                onNavigateToMainFeedPage()
+                            }
+                            .addOnFailureListener {
+                                userViewModel.setUser(
+                                    UserState(
+                                        uid = uid,
+                                        email = currentEmail,
+                                        isLoggedIn = true
+                                    )
+                                )
+                                onNavigateToMainFeedPage()
+                            }
                     },
                     onNewUser = { uid ->
                         isLoading = false
+
+                        val auth = FirebaseAuth.getInstance()
+                        val currentEmail = auth.currentUser?.email ?: email
+                        userViewModel.setUser(
+                            UserState(
+                                uid = uid,
+                                email = currentEmail,
+                                isLoggedIn = true
+                            )
+                        )
+
                         onNavigateToRegistrationPage(uid)
                     },
                     onFailure = { msg ->

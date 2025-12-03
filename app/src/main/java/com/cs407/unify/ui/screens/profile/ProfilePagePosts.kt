@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,13 +25,51 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.cs407.unify.data.UserState
+import com.cs407.unify.data.Post
 import com.cs407.unify.ui.components.threads.ThreadCard
 import com.cs407.unify.ui.components.threads.ThreadStore
 import com.cs407.unify.ui.components.threads.Thread
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
-fun ProfilePagePosts(onExit: () -> Unit, onClick: (Thread) -> Unit) {
-    var threadState by remember { mutableStateOf(ThreadStore.threads.toMutableMap()) }
+fun ProfilePagePosts(
+    userState: UserState,
+    onExit: () -> Unit,
+    onClick: (Thread) -> Unit)
+{
+    val uid = userState.uid
+
+    var threads by remember { mutableStateOf<List<Thread>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(uid) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("posts")
+            .whereEqualTo("authorUid", uid)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val loadedThreads = snapshot.documents.mapNotNull { doc ->
+                    val post = doc.toObject(Post::class.java)
+                    post?.let {
+                        Thread(
+                            id = it.id,
+                            title = it.title,
+                            body = it.body,
+                            hub = it.hub
+                        )
+                    }
+                }
+                threads = loadedThreads
+                isLoading = false
+                errorMessage = null
+            }
+            .addOnFailureListener { e ->
+                isLoading = false
+                errorMessage = e.message ?: "Failed to load posts."
+            }
+    }
 
     Surface(
         modifier = Modifier
@@ -58,13 +97,23 @@ fun ProfilePagePosts(onExit: () -> Unit, onClick: (Thread) -> Unit) {
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold 
                 )
-                LazyColumn (
-                    modifier = Modifier.padding(all = 20.dp)
-                ) {
-                    items(threadState.entries.toList()) { entry ->
-                        ThreadCard(entry.value, onClick = { onClick(entry.value) })
+                when {
+                    threads.isEmpty() -> {
+                        Text(
+                            text = "No Posts",
+                            modifier = Modifier.padding(24.dp),
+                            color = Color.Gray
+                        )
                     }
-                   
+                    else -> {
+                        LazyColumn(
+                            modifier = Modifier.padding(all = 20.dp)
+                        ) {
+                            items(threads) { thread ->
+                                ThreadCard(thread, onClick = { onClick(thread) })
+                            }
+                        }
+                    }
                 }
             }
         }

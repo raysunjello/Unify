@@ -6,6 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
@@ -53,12 +55,10 @@ fun AppNavigation() {
 
     val context = LocalContext.current
 
-    // Build the database and DAOs once for this composition
     val appDatabase = remember { AppDatabase.getDatabase(context) }
     val userDao = remember { appDatabase.userDao() }
     val deleteDao = remember { appDatabase.deleteDao() }
 
-    // Create UserViewModel with a custom factory that passes the DAOs
     val userViewModel: UserViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -71,12 +71,15 @@ fun AppNavigation() {
         }
     )
 
+    val userState by userViewModel.userState.collectAsState()
+
     NavHost(
         navController = navController,
         startDestination = "login" // display landing page on app start
     ){
         composable("login"){
             LoginPage(
+                userViewModel = userViewModel,
                 onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
                 onNavigateToRegistrationPage = { uid -> navController.navigate("register/$uid") }
             )
@@ -111,6 +114,7 @@ fun AppNavigation() {
 
         composable("post"){
             PostPage(
+                userState = userState,
                 onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
                 onNavigateToMarketPage = { navController.navigate("market") },
                 onNavigateToProfilePage = { navController.navigate("profile") },
@@ -150,6 +154,7 @@ fun AppNavigation() {
 
         composable("my_posts") {
             ProfilePagePosts (
+                userState = userState,
                 onExit = {navController.navigate("profile")},
                 onClick = { thread ->
                     // Store selected thread temporarily
@@ -176,7 +181,8 @@ fun AppNavigation() {
                             "my_posts" -> navController.navigate("my_posts")
                             else -> navController.navigate("my_posts")
                         }
-                    }
+                    },
+                    userState = userState,
                 )
             } else {
                 // Handle case where no thread is selected

@@ -26,6 +26,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,20 +38,39 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cs407.unify.data.UserState
+import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.cs407.unify.data.Comment as PostComment
 
 @Composable
 fun ThreadPage(
     thread: Thread,
+    userState: UserState,
     onExit: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val db = FirebaseFirestore.getInstance()
+
     var comment by remember { mutableStateOf("") }
     var isSaved by remember { mutableStateOf(ThreadStore.isThreadSaved(thread.id)) }
-    var commentsList by remember { mutableStateOf(thread.comments.toList()) }
-    val context = LocalContext.current
+    var commentsList by remember { mutableStateOf<List<PostComment>>(emptyList()) }
+
+    LaunchedEffect(thread.id) {
+        db.collection("posts")
+            .document(thread.id)
+            .collection("comments")
+            .orderBy("createdAt")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                commentsList = snapshot.documents.mapNotNull { doc ->
+                    doc.toObject(PostComment::class.java)?.copy(id = doc.id)
+                }
+            }
+    }
 
     Scaffold(
         topBar = {
@@ -117,17 +137,42 @@ fun ThreadPage(
                 // Send button
                 IconButton(
                     onClick = {
-                        if (comment.isNotBlank()) {
-                            ThreadStore.addComment(thread.id, comment)
-                            commentsList = thread.comments.toList()
-                            comment = ""
-                        }
+                        if (comment.isBlank()) return@IconButton
 
-                        Toast.makeText(
-                            context,
-                            "Comment posted!",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        val newCommentRef = db.collection("posts")
+                            .document(thread.id)
+                            .collection("comments")
+                            .document()
+
+                        val newComment = PostComment(
+                            id = newCommentRef.id,
+                            postId = thread.id,
+                            text = comment,
+                            authorUid = userState.uid,
+                            authorUsername = userState.username.ifBlank { null },
+                            authorUniversity = userState.university.ifBlank { null },
+                            createdAt = System.currentTimeMillis()
+                        )
+
+                        newCommentRef
+                            .set(newComment)
+                            .addOnSuccessListener {
+                                commentsList = commentsList + newComment
+                                comment = ""
+
+                                Toast.makeText(
+                                    context,
+                                    "Comment posted!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(
+                                    context,
+                                    "Failed to post comment: ${e.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                     },
                     enabled = comment.isNotBlank()
                 ) {
@@ -189,7 +234,7 @@ fun ThreadPage(
 }
 
 @Composable
-fun CommentCard(comment: Comment) {
+fun CommentCard(comment: PostComment) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -207,7 +252,7 @@ fun CommentCard(comment: Comment) {
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = formatTimestamp(comment.timestamp),
+                text = formatTimestamp(comment.createdAt),
                 fontSize = 12.sp,
                 color = Color.Gray
             )

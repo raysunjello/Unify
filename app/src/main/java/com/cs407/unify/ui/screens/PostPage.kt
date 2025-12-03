@@ -21,15 +21,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cs407.unify.R
+import com.cs407.unify.data.Post
+import com.cs407.unify.data.UserState
 import com.cs407.unify.ui.components.UnifyBottomBar
 import com.cs407.unify.ui.components.BottomTab
 import com.cs407.unify.ui.components.threads.Thread
 import com.cs407.unify.ui.components.threads.ThreadStore
 import java.util.UUID
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 @Composable
 fun PostPage(
+    userState: UserState,
     onNavigateToMainFeedPage: () -> Unit,
     onNavigateToMarketPage: () -> Unit,
     onNavigateToProfilePage: () -> Unit,
@@ -215,23 +220,47 @@ fun PostPage(
                             Toast.LENGTH_SHORT
                         ).show()
                     } else {
-                        val newThread = Thread(
-                            title = postTitle,
-                            body = body,
-                            hub = hub
-                        )
-                        ThreadStore.threads[newThread.id] = newThread
-
-                        postTitle = ""
-                        body = ""
-                        hub = ""
-
-                        Toast.makeText(
-                            context,
-                            "Post uploaded!",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        if (!userState.isLoggedIn || userState.uid.isBlank()) {
+                            Toast.makeText(
+                                context,
+                                "You must be logged in to post.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@Button
+                        }
                     }
+                    val db = FirebaseFirestore.getInstance()
+                    val postsCollection = db.collection("posts")
+
+                    val docRef = postsCollection.document()
+
+                    val post = Post(
+                        id = docRef.id,
+                        title = postTitle,
+                        body = body,
+                        hub = hub,
+                        isAnonymous = postAnon,
+                        authorUid = userState.uid,
+                        authorUsername = if (postAnon) null else userState.username,
+                        authorUniversity = if (postAnon) null else userState.university,
+                        createdAt = System.currentTimeMillis()
+                    )
+
+                    docRef.set(post)
+                        .addOnSuccessListener {
+                            postTitle = ""
+                            body = ""
+                            hub = ""
+
+                            Toast.makeText(context, "Post uploaded!", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(
+                                context,
+                                "Upload failed: ${e.message}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                 },
                 modifier = Modifier
                     .width(200.dp)
