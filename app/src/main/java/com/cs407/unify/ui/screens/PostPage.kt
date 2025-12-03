@@ -215,9 +215,12 @@ fun PostPage(
                             Toast.LENGTH_SHORT
                         ).show()
                     } else {
-                        val id = UUID.randomUUID().toString()
-                        val newThread = Thread(postTitle, body, hub)
-                        ThreadStore.threads[id] = newThread
+                        val newThread = Thread(
+                            title = postTitle,
+                            body = body,
+                            hub = hub
+                        )
+                        ThreadStore.threads[newThread.id] = newThread
 
                         postTitle = ""
                         body = ""
@@ -225,7 +228,7 @@ fun PostPage(
 
                         Toast.makeText(
                             context,
-                            "Post saved!", // TODO (LATER) : change to uploaded when added to feed
+                            "Post uploaded!",
                             Toast.LENGTH_SHORT
                         ).show()
                     }

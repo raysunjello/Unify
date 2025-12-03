@@ -52,6 +52,7 @@ fun PreviewProfilePage() {
         onNavigateToSearchPage = {},
         onNavigateToMyPosts = {},
         onNavigateToSettingsPage = {},
+        onNavigateToSavedStuff = {},
     )
 }
 @Composable
@@ -62,6 +63,7 @@ fun ProfilePage(
     onNavigateToSearchPage: () -> Unit,
     onNavigateToMyPosts: () -> Unit,
     onNavigateToSettingsPage: () -> Unit,
+    onNavigateToSavedStuff: () -> Unit,
 ) {
 //    val drawerState = rememberDrawerState(DrawerValue.Closed)
 //    val scope = rememberCoroutineScope()
@@ -168,7 +170,9 @@ fun ProfilePage(
                         text = "SAVED STUFF", // TODO replace w string
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(25.dp)
+                        modifier = Modifier
+                            .padding(25.dp)
+                            .clickable(onClick = onNavigateToSavedStuff)
                     )
                 }
                 ElevatedCard(
