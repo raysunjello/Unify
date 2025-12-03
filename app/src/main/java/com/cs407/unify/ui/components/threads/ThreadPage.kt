@@ -245,6 +245,15 @@ fun CommentCard(comment: PostComment) {
         Column(
             modifier = Modifier.padding(12.dp)
         ) {
+
+            Text(
+                text = comment.authorUsername ?: "Unknown user",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = comment.text,
                 fontSize = 16.sp,
