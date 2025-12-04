@@ -12,7 +12,20 @@
           "package_name": "com.cs407.unify"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "406387526581-87jk60jasdn1imicbq7jtn90hu6jhdru.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cs407.unify",
+            "certificate_hash": "61089da020d3ce3a38cd711f526e96654be7cf3d"
+          }
+        },
+        {
+          "client_id": "406387526581-an4vc8olh9fuekhevnnret5fhfo3hsjj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDECQBFhOMEvPCbKQ4ExunEsPcjNbl00Rw"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "406387526581-an4vc8olh9fuekhevnnret5fhfo3hsjj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

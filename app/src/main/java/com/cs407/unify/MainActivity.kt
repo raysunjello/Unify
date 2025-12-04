@@ -221,37 +221,28 @@ fun AppNavigation() {
             )
         }
 
-            composable("hub_school") {
-                SchoolHubPage(
-                    onExit = { navController.navigate("search") },
-                    onClick = { thread ->
-                        // Store selected thread temporarily
-                        ThreadStore.selectedThread = thread
-                        navController.navigate("thread/hub_school") // TODO : change
-                    }
-                )
-            }
         composable("hub_school") {
             SchoolHubPage(
                 onExit = { navController.navigate("search") },
                 onClick = { thread ->
+                    // Store selected thread temporarily
                     ThreadStore.selectedThread = thread
                     navController.navigate("thread/hub_school") // TODO : change
                 }
             )
         }
 
-            composable("my_posts") {
-                ProfilePagePosts (
-                    userState = userState,
-                    onExit = {navController.navigate("profile")},
-                    onClick = { thread ->
-                        // Store selected thread temporarily
-                        ThreadStore.selectedThread = thread
-                        navController.navigate("thread/my_posts")
-                    }
-                )
-            }
+        composable("my_posts") {
+            ProfilePagePosts (
+                userState = userState,
+                onExit = {navController.navigate("profile")},
+                onClick = { thread ->
+                    // Store selected thread temporarily
+                    ThreadStore.selectedThread = thread
+                    navController.navigate("thread/my_posts")
+                }
+            )
+        }
         composable("hub_housing") {
             HousingHubPage (
                 onExit = { navController.navigate("search") },
