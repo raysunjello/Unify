@@ -1,5 +1,10 @@
 package com.cs407.unify.ui.components.threads
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import java.io.Serializable
 import java.util.UUID
 
@@ -21,6 +26,7 @@ object ThreadStore {
     val threads: HashMap<String, Thread> = hashMapOf()
     var selectedThread: Thread? = null
     val savedThreadIds: MutableSet<String> = mutableSetOf() // Track saved thread IDs
+
 
     // Helper function to check if a thread is saved
     fun isThreadSaved(threadId: String): Boolean {

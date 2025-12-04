@@ -32,6 +32,7 @@ import com.cs407.unify.ui.screens.profile.ProfilePagePosts
 import com.cs407.unify.ui.screens.login.RegistrationPage
 import com.cs407.unify.ui.screens.profile.SettingsPage
 import androidx.lifecycle.ViewModelProvider
+import com.cs407.unify.ui.screens.explore.SchoolHubPage
 import com.cs407.unify.ui.screens.profile.SavedThreadsPage
 
 
@@ -148,7 +149,19 @@ fun AppNavigation() {
                 onNavigateToPostPage = { navController.navigate("post") },
                 onNavigateToMarketPage = { navController.navigate("market")},
                 onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
-                onNavigateToProfilePage = { navController.navigate("profile") }
+                onNavigateToProfilePage = { navController.navigate("profile") },
+                onClickSchool = { navController.navigate("hub_school") }
+            )
+        }
+
+        composable("hub_school") {
+            SchoolHubPage(
+                onExit = { navController.navigate("search") },
+                onClick = { thread ->
+                    // Store selected thread temporarily
+                    ThreadStore.selectedThread = thread
+                    navController.navigate("thread/hub_school") // TODO : change
+                }
             )
         }
 
@@ -177,6 +190,7 @@ fun AppNavigation() {
                     thread = selectedThread,
                     onExit = {
                         when (source) {
+                            "hub_school" -> navController.navigate("hub_school")
                             "saved_stuff" -> navController.navigate("saved_stuff")
                             "my_posts" -> navController.navigate("my_posts")
                             else -> navController.navigate("my_posts")
@@ -188,7 +202,7 @@ fun AppNavigation() {
                 // Handle case where no thread is selected
                 // Navigate back or show error
                 LaunchedEffect(Unit) {
-                    navController.navigate("my_posts")
+                    navController.navigate("my_posts") // TODO : check
                 }
             }
         }
