@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import com.cs407.unify.data.UserState
 import com.cs407.unify.data.Post
 import com.cs407.unify.ui.components.threads.ThreadCard
-import com.cs407.unify.ui.components.threads.ThreadStore
 import com.cs407.unify.ui.components.threads.Thread
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -57,7 +56,8 @@ fun ProfilePagePosts(
                             id = it.id,
                             title = it.title,
                             body = it.body,
-                            hub = it.hub
+                            hub = it.hub,
+                            imageBase64 = it.imageBase64
                         )
                     }
                 }
@@ -86,7 +86,7 @@ fun ProfilePagePosts(
                 modifier = Modifier.align(Alignment.TopStart).padding(horizontal = 8.dp)
                     .padding(top = 15.dp)
             ) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Exit")
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Exit")
             }
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -95,7 +95,7 @@ fun ProfilePagePosts(
                 Text(
                     text = "MY POSTS", // TODO replace w string
                     style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold 
+                    fontWeight = FontWeight.Bold
                 )
                 when {
                     threads.isEmpty() -> {

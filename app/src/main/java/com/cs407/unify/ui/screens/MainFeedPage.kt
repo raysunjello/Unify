@@ -35,7 +35,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cs407.unify.R
-import com.cs407.unify.data.UserState
 import com.cs407.unify.data.Post
 import com.cs407.unify.ui.components.UnifyBottomBar
 import com.cs407.unify.ui.components.BottomTab
@@ -87,7 +86,8 @@ fun MainFeedPage(
                                 id = it.id.ifBlank { doc.id },
                                 title = it.title,
                                 body = it.body,
-                                hub = it.hub
+                                hub = it.hub,
+                                imageBase64 = it.imageBase64
                             )
                         ThreadStore.threads[thread.id] = thread
                         thread
@@ -135,115 +135,119 @@ fun MainFeedPage(
 //                        onNavigateToPostPage
 //                    ) // TODO : implement click -> ThreadPage
 //                }
-
-            ElevatedCard(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.placeholder_image),
-                        contentDescription = "Placeholder Image",
-                        modifier = Modifier
-                            .size(100.dp),
-                        contentScale = ContentScale.FillBounds,
-                        colorFilter = null
-                    )
-
-                    Column(
-                        modifier = Modifier
-                            .padding(start = 16.dp)
-                            .align(Alignment.CenterVertically)
-                    ) {
-                        Text(
-                            text = "Popular Threads",
-                            style = MaterialTheme.typography.headlineMedium,
-                            color = Color.Black
-                        )
-
-                        Text(
-                            text = "Trending / popular threads that have a lot of recent activity. Or suggested threads that user may be interested in.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.DarkGray
-
-                        )
-                    }
-                }
-            }
-
-            //quick posts card
-            ElevatedCard(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = "Quick Posts",
-                        style = MaterialTheme.typography.headlineMedium
-                    )
-
-                    Text(
-                        text = "Similar to tweets, kind of like PSA announcements or random thoughts / ideas that people post.",
-
-                        )
-                }
-            }
-
-            //items for sale card
-            ElevatedCard(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.placeholder_image),
-                        contentDescription = "Placeholder Image",
-                        modifier = Modifier
-                            .size(100.dp),
-                        contentScale = ContentScale.FillBounds,
-                        colorFilter = null
-                    )
-
-                    Column(
-                        modifier = Modifier
-                            .padding(start = 16.dp)
-                            .align(Alignment.CenterVertically)
-                    ) {
-                        Text(
-                            text = "Items For Sale",
-                            style = MaterialTheme.typography.headlineMedium,
-                        )
-
-                        Text(
-                            text = "Recently listed items or suggested items on sale."
-
-                        )
-                    }
-                }
-            }
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(bottom = 80.dp)
-            ) {
+            ) { item {
+                ElevatedCard(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.placeholder_image),
+                            contentDescription = "Placeholder Image",
+                            modifier = Modifier
+                                .size(100.dp),
+                            contentScale = ContentScale.FillBounds,
+                            colorFilter = null
+                        )
+
+                        Column(
+                            modifier = Modifier
+                                .padding(start = 16.dp)
+                                .align(Alignment.CenterVertically)
+                        ) {
+                            Text(
+                                text = "Popular Threads",
+                                style = MaterialTheme.typography.headlineMedium,
+                                color = Color.Black
+                            )
+
+                            Text(
+                                text = "Trending / popular threads that have a lot of recent activity. Or suggested threads that user may be interested in.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.DarkGray
+
+                            )
+                        }
+                    }
+                }
+            }
+
+            //quick posts card
+                item {
+                    ElevatedCard(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .padding(16.dp)
+                        ) {
+                            Text(
+                                text = "Quick Posts",
+                                style = MaterialTheme.typography.headlineMedium
+                            )
+
+                            Text(
+                                text = "Similar to tweets, kind of like PSA announcements or random thoughts / ideas that people post.",
+
+                                )
+                        }
+                    }
+                }
+                item {
+                    //items for sale card
+                    ElevatedCard(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.placeholder_image),
+                                contentDescription = "Placeholder Image",
+                                modifier = Modifier
+                                    .size(100.dp),
+                                contentScale = ContentScale.FillBounds,
+                                colorFilter = null
+                            )
+
+                            Column(
+                                modifier = Modifier
+                                    .padding(start = 16.dp)
+                                    .align(Alignment.CenterVertically)
+                            ) {
+                                Text(
+                                    text = "Items For Sale",
+                                    style = MaterialTheme.typography.headlineMedium,
+                                )
+
+                                Text(
+                                    text = "Recently listed items or suggested items on sale."
+
+                                )
+                            }
+                        }
+                    }
+                }
+
                 items(threads) { thread ->
                     ThreadCard(
                         thread = thread,
@@ -256,16 +260,15 @@ fun MainFeedPage(
             }
         }
 
-            UnifyBottomBar(
-                current = BottomTab.Feed,
-                onHome = {/* currently on home*/ },
-                onSearch = { onNavigateToSearchPage() },
-                onPost = { onNavigateToPostPage() },
-                onMarket = { onNavigateToMarketPage() },
-                onProfile = { onNavigateToProfilePage() },
-                modifier = Modifier.align(Alignment.BottomCenter)
-            )
+        UnifyBottomBar(
+            current = BottomTab.Feed,
+            onHome = {/* currently on home*/ },
+            onSearch = { onNavigateToSearchPage() },
+            onPost = { onNavigateToPostPage() },
+            onMarket = { onNavigateToMarketPage() },
+            onProfile = { onNavigateToProfilePage() },
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
 
-        }
     }
-
+}
