@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Unify</string>
     <string name="database">Database</string>
+    <string name="default_web_client_id">
+        406387526581-87jk60jasdn1imicbq7jtn90hu6jhdru.apps.googleusercontent.com
+    </string>
 </resources>
