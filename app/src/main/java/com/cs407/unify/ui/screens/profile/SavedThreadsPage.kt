@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -80,7 +80,8 @@ fun SavedThreadsPage(
                                     id = it.id,
                                     title = it.title,
                                     body = it.body,
-                                    hub = it.hub
+                                    hub = it.hub,
+                                    imageBase64 = it.imageBase64
                                 )
                             }
                         }
@@ -98,7 +99,7 @@ fun SavedThreadsPage(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color.White
+        color = Color.Transparent
     ) {
         Box(
             modifier = Modifier
@@ -112,7 +113,7 @@ fun SavedThreadsPage(
                     .padding(horizontal = 8.dp)
                     .padding(top = 15.dp)
             ) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Exit")
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Exit")
             }
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -136,7 +137,6 @@ fun SavedThreadsPage(
                         Text(
                             text = "No saved posts yet",
                             modifier = Modifier.padding(24.dp),
-                            color = Color.Gray
                         )
                     }
                     else -> {

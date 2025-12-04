@@ -1,10 +1,5 @@
 package com.cs407.unify.ui.components.threads
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import java.io.Serializable
 import java.util.UUID
 
@@ -19,7 +14,8 @@ data class Thread(
     val title: String,
     val body: String,
     val hub: String,
-    val comments: MutableList<Comment> = mutableListOf()
+    val comments: MutableList<Comment> = mutableListOf(),
+    val imageBase64: String? = null
 ) : Serializable
 
 object ThreadStore {

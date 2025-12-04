@@ -1,6 +1,9 @@
 package com.cs407.unify.ui.components.threads
 
+import android.graphics.BitmapFactory
+import android.util.Base64
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,9 +17,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -34,7 +37,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -51,7 +57,6 @@ fun ThreadPage(
     thread: Thread,
     userState: UserState,
     onExit: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val db = FirebaseFirestore.getInstance()
@@ -202,7 +207,7 @@ fun ThreadPage(
                     enabled = comment.isNotBlank()
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.Send,
+                        imageVector = Icons.AutoMirrored.Filled.Send,
                         contentDescription = "Send comment",
                         tint = if (comment.isNotBlank()) MaterialTheme.colorScheme.primary else Color.Gray
                     )
@@ -210,6 +215,20 @@ fun ThreadPage(
             }
         }
     ) { innerPadding ->
+        // Convert Base64 to Bitmap if image exists
+        val bitmap = remember(thread.imageBase64) {
+            if (thread.imageBase64 != null) {
+                try {
+                    val bytes = Base64.decode(thread.imageBase64, Base64.DEFAULT)
+                    BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                } catch (e: Exception) {
+                    null
+                }
+            } else {
+                null
+            }
+        }
+
         Column(
             modifier = Modifier
                 .padding(innerPadding)
@@ -231,6 +250,22 @@ fun ThreadPage(
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
+
+            // Display image if exists
+            bitmap?.let {
+                Spacer(modifier = Modifier.height(8.dp))
+                Image(
+                    bitmap = it.asImageBitmap(),
+                    contentDescription = "Post Image",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .clip(RoundedCornerShape(12.dp)),
+                    contentScale = ContentScale.FillWidth
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
             HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(10.dp))
             Text(
                 text = thread.body,

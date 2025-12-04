@@ -1,6 +1,4 @@
 package com.cs407.unify.ui.screens
-
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -44,7 +42,6 @@ fun MarketPage(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
                 .padding(16.dp)
         ) {
             //top bar with search and cart
@@ -69,7 +66,7 @@ fun MarketPage(
                     modifier = Modifier
                         .size(28.dp)
                         .clickable { /* TODO: Navigate to cart */ },
-                    tint = Color.Black
+                    tint = MaterialTheme.colorScheme.onBackground
                 )
             }
 
@@ -129,11 +126,9 @@ fun SearchBar(modifier: Modifier = Modifier) {
             )
         },
         colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color(0xFFF5F5F5),
-            unfocusedContainerColor = Color(0xFFF5F5F5),
-            disabledContainerColor = Color(0xFFF5F5F5),
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent
         ),
         shape = RoundedCornerShape(25.dp),
         singleLine = true
@@ -147,7 +142,7 @@ fun CategoryItem(categoryName: String) {
         fontSize = 27.sp,
         fontWeight = FontWeight.Black,
         letterSpacing = 1.sp,
-        color = Color.Black,
+        color = MaterialTheme.colorScheme.onBackground,
         textAlign = TextAlign.Center,
         modifier = Modifier
             .fillMaxWidth()
