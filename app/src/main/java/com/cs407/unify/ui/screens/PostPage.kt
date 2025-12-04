@@ -315,8 +315,10 @@ fun PostPage(
             )
 
             var expanded by remember { mutableStateOf(false) }
-            val mainHubs = listOf("SCHOOL", "HOUSING", "TRANSPORTATION", "CITY", "SOCIAL", "MISC")
+            var newHub by remember { mutableStateOf(false) }
+            val mainHubs = listOf("SCHOOL", "HOUSING", "TRANSPORT", "CITY", "SOCIAL", "MISC", "( ADD NEW )")
             var selected by remember { mutableStateOf("") }
+            var text by remember { mutableStateOf("") }
 
             Button(
                 onClick = { expanded = true },
@@ -356,77 +358,44 @@ fun PostPage(
                             selected = option
                             hub = option
                             expanded = false
+                            if (option == "( ADD NEW )") {
+                                newHub = true
+                            }
                         }
                     )
                 }
             }
 
-
-            //hub field with dropdown
-//            Box(modifier = Modifier.fillMaxWidth()) {
-//
-//
-////                TextField(
-////                    value = hub,
-////                    onValueChange = { hub = it },
-////                    placeholder = {
-////                        Text(
-////                            text = "Hub...",
-////                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-////                        )
-////                    },
-////                    modifier = Modifier
-////                        .fillMaxWidth()
-////                        .height(56.dp),
-////                    colors = TextFieldDefaults.colors(
-////                        focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-////                        unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-////                        disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-////                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-////                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-////                        focusedIndicatorColor = Color.Transparent,
-////                        unfocusedIndicatorColor = Color.Transparent,
-////                    ),
-////                    shape = RoundedCornerShape(12.dp),
-////                    singleLine = true
-////                )
-//
-//                // Dropdown menu for hub suggestions
-////                if (showHubDropdown && hubSuggestions.isNotEmpty()) {
-////                    Card(
-////                        modifier = Modifier
-////                            .fillMaxWidth()
-////                            .padding(top = 60.dp),
-////                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-////                        colors = CardDefaults.cardColors(
-////                            containerColor = MaterialTheme.colorScheme.surface
-////                        )
-////                    ) {
-////                        Column {
-////                            hubSuggestions.take(5).forEach { suggestion ->
-////                                Text(
-////                                    text = suggestion,
-////                                    modifier = Modifier
-////                                        .fillMaxWidth()
-////                                        .clickable {
-////                                            hub = suggestion
-////                                            showHubDropdown = false
-////                                        }
-////                                        .padding(12.dp),
-////                                    style = MaterialTheme.typography.bodyLarge,
-////                                    color = MaterialTheme.colorScheme.onSurface
-////                                )
-////                                if (suggestion != hubSuggestions.take(5).last()) {
-////                                    HorizontalDivider(
-////                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
-////                                    )
-////                                }
-////                            }
-////                        }
-////                    }
-////                }
-//            }
-
+            if (newHub) {
+                AlertDialog(
+                    onDismissRequest = { newHub = false },
+                    title = { Text("Enter Text") },
+                    text = {
+                        TextField(
+                            value = text,
+                            onValueChange = { text = it },
+                            placeholder = { Text("New Hub...") }
+                        )
+                    },
+                    confirmButton = {
+                        Button(onClick = {
+                            newHub = false
+                            selected = text // update field
+                            hub = text // update thread_hub : add to db
+                        }) {
+                            Text("OK")
+                        }
+                    },
+                    dismissButton = {
+                        Button(onClick = {
+                            newHub = false
+                            selected = ""
+                        }) {
+                            Text("Cancel")
+                        }
+                    }
+                )
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
