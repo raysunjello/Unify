@@ -32,7 +32,12 @@ fun PreviewSearchPage() {
         onNavigateToMarketPage = {},
         onNavigateToMainFeedPage = {},
         onNavigateToProfilePage = {},
-        onClickSchool = {}
+        onClickSchool = {},
+        onClickHousing = {},
+        onClickTransport = {},
+        onClickCity = {},
+        onClickSocial = {},
+        onClickMisc = {}
     )
 }
 @Composable
@@ -42,11 +47,11 @@ fun SearchPage(
     onNavigateToMainFeedPage: () -> Unit,
     onNavigateToProfilePage: () -> Unit,
     onClickSchool: () -> Unit,
-//    onClickHousing: () -> Unit,
-//    onClickTransport: () -> Unit,
-//    onClickCity: () -> Unit,
-//    onClickSocial: () -> Unit,
-//    onClickMisc: () -> Unit,
+    onClickHousing: () -> Unit,
+    onClickTransport: () -> Unit,
+    onClickCity: () -> Unit,
+    onClickSocial: () -> Unit,
+    onClickMisc: () -> Unit,
 ) {
 
     var prompt by remember { mutableStateOf("") }
@@ -106,7 +111,7 @@ fun SearchPage(
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(25.dp)
-                        //.clickable(onClick = onNavigateToMyPosts) TODO
+                        .clickable(onClick = onClickHousing)
                     )
                 }
                 ElevatedCard(
@@ -118,11 +123,11 @@ fun SearchPage(
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
                 ) { // TRANSPORT
                     Text(
-                        text = "TRANSPORTATION", // TODO replace w string
+                        text = "TRANSPORT", // TODO replace w string
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(25.dp)
-                        //.clickable(onClick = onNavigateToMyPosts) TODO
+                        .clickable(onClick = onClickTransport)
                     )
                 }
                 ElevatedCard(
@@ -134,11 +139,11 @@ fun SearchPage(
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
                 ) { // CITY LIFE
                     Text(
-                        text = "CITY", // TODO replace w string
+                        text = "CITY LIFE", // TODO replace w string
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(25.dp)
-                        //.clickable(onClick = onNavigateToMyPosts) TODO
+                        .clickable(onClick = onClickCity)
                     )
                 }
 
@@ -155,7 +160,7 @@ fun SearchPage(
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(25.dp)
-                        //.clickable(onClick = onNavigateToMyPosts) TODO
+                        .clickable(onClick = onClickSocial)
                     )
                 }
                 ElevatedCard(
@@ -167,11 +172,11 @@ fun SearchPage(
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
                 ) { // MISC
                     Text(
-                        text = "MISC.", // TODO replace w string
+                        text = "MISC", // TODO replace w string
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(25.dp)
-                        //.clickable(onClick = onNavigateToMyPosts) TODO
+                        .clickable(onClick = onClickMisc)
                     )
                 }
             }

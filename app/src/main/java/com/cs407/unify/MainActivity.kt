@@ -32,7 +32,12 @@ import com.cs407.unify.ui.screens.profile.ProfilePagePosts
 import com.cs407.unify.ui.screens.login.RegistrationPage
 import com.cs407.unify.ui.screens.profile.SettingsPage
 import androidx.lifecycle.ViewModelProvider
+import com.cs407.unify.ui.screens.explore.CityLifePage
+import com.cs407.unify.ui.screens.explore.HousingHubPage
+import com.cs407.unify.ui.screens.explore.MiscHubPage
 import com.cs407.unify.ui.screens.explore.SchoolHubPage
+import com.cs407.unify.ui.screens.explore.SocialHubPage
+import com.cs407.unify.ui.screens.explore.TransportHubPage
 import com.cs407.unify.ui.screens.profile.SavedThreadsPage
 
 
@@ -153,7 +158,13 @@ fun AppNavigation() {
                 onNavigateToMarketPage = { navController.navigate("market")},
                 onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
                 onNavigateToProfilePage = { navController.navigate("profile") },
-                onClickSchool = { navController.navigate("hub_school") }
+
+                onClickSchool = { navController.navigate("hub_school") },
+                onClickHousing = { navController.navigate("hub_housing") },
+                onClickTransport = { navController.navigate("hub_transport") },
+                onClickCity = { navController.navigate("hub_city") },
+                onClickSocial = { navController.navigate("hub_social") },
+                onClickMisc = { navController.navigate("hub_misc") }
             )
         }
 
@@ -161,9 +172,58 @@ fun AppNavigation() {
             SchoolHubPage(
                 onExit = { navController.navigate("search") },
                 onClick = { thread ->
-                    // Store selected thread temporarily
                     ThreadStore.selectedThread = thread
                     navController.navigate("thread/hub_school") // TODO : change
+                }
+            )
+        }
+
+        composable("hub_housing") {
+            HousingHubPage (
+                onExit = { navController.navigate("search") },
+                onClick = { thread ->
+                    ThreadStore.selectedThread = thread
+                    navController.navigate("thread/hub_housing") // TODO : change
+                }
+            )
+        }
+
+        composable("hub_transport") {
+            TransportHubPage (
+                onExit = { navController.navigate("search") },
+                onClick = { thread ->
+                    ThreadStore.selectedThread = thread
+                    navController.navigate("thread/hub_transport")
+                }
+            )
+        }
+
+        composable("hub_city") {
+            CityLifePage (
+                onExit = { navController.navigate("search") },
+                onClick = { thread ->
+                    ThreadStore.selectedThread = thread
+                    navController.navigate("thread/hub_city")
+                }
+            )
+        }
+
+        composable("hub_social") {
+            SocialHubPage (
+                onExit = { navController.navigate("search") },
+                onClick = { thread ->
+                    ThreadStore.selectedThread = thread
+                    navController.navigate("thread/hub_social")
+                }
+            )
+        }
+
+        composable("hub_misc") {
+            MiscHubPage (
+                onExit = { navController.navigate("search") },
+                onClick = { thread ->
+                    ThreadStore.selectedThread = thread
+                    navController.navigate("thread/hub_misc")
                 }
             )
         }
