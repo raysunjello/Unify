@@ -133,119 +133,13 @@ fun MainFeedPage(
 //                        onNavigateToPostPage
 //                    ) // TODO : implement click -> ThreadPage
 //                }
-            LazyColumn(
+            LazyColumn( // TODO : change to paging object
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(bottom = 80.dp)
-            ) { item {
-                ElevatedCard(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.placeholder_image),
-                            contentDescription = "Placeholder Image",
-                            modifier = Modifier
-                                .size(100.dp),
-                            contentScale = ContentScale.FillBounds,
-                            colorFilter = null
-                        )
-
-                        Column(
-                            modifier = Modifier
-                                .padding(start = 16.dp)
-                                .align(Alignment.CenterVertically)
-                        ) {
-                            Text(
-                                text = "Popular Threads",
-                                style = MaterialTheme.typography.headlineMedium,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-
-                            Text(
-                                text = "Trending / popular threads that have a lot of recent activity. Or suggested threads that user may be interested in.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.9f)
-
-                            )
-                        }
-                    }
-                }
-            }
-
-            //quick posts card
-                item {
-                    ElevatedCard(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .padding(16.dp)
-                        ) {
-                            Text(
-                                text = "Quick Posts",
-                                style = MaterialTheme.typography.headlineMedium
-                            )
-
-                            Text(
-                                text = "Similar to tweets, kind of like PSA announcements or random thoughts / ideas that people post.",
-
-                                )
-                        }
-                    }
-                }
-                item {
-                    //items for sale card
-                    ElevatedCard(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.placeholder_image),
-                                contentDescription = "Placeholder Image",
-                                modifier = Modifier
-                                    .size(100.dp),
-                                contentScale = ContentScale.FillBounds,
-                                colorFilter = null
-                            )
-
-                            Column(
-                                modifier = Modifier
-                                    .padding(start = 16.dp)
-                                    .align(Alignment.CenterVertically)
-                            ) {
-                                Text(
-                                    text = "Items For Sale",
-                                    style = MaterialTheme.typography.headlineMedium,
-                                )
-
-                                Text(
-                                    text = "Recently listed items or suggested items on sale."
-
-                                )
-                            }
-                        }
-                    }
-                }
-
+            ) {
                 items(threads) { thread ->
                     ThreadCard(
                         thread = thread,

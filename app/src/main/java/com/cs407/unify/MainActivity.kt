@@ -211,15 +211,6 @@ fun AppNavigation() {
                     }
                 )
             }
-        composable("search"){
-            SearchPage(
-                onNavigateToPostPage = { navController.navigate("post") },
-                onNavigateToMarketPage = { navController.navigate("market")},
-                onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
-                onNavigateToProfilePage = { navController.navigate("profile") },
-                onClickHub = { hubName -> navController.navigate("hub/${hubName}") }
-            )
-        }
 
         composable("hub_school") {
             SchoolHubPage(

@@ -9,14 +9,17 @@ import android.util.Base64
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -58,7 +61,7 @@ fun PostPage(
     var showImageSourceDialog by remember { mutableStateOf(false) }
     var isUploading by remember { mutableStateOf(false) }
     var showHubDropdown by remember { mutableStateOf(false) }
-    var hubSuggestions by remember { mutableStateOf<List<String>>(emptyList()) }
+    var hubSuggestions by remember { mutableStateOf<List<String>>(emptyList()) } // TODO : access hubs
 
     val context = LocalContext.current
     val db = FirebaseFirestore.getInstance()
@@ -261,7 +264,6 @@ fun PostPage(
             }
 
             //post title field
-            //post title field
             TextField(
                 value = postTitle,
                 onValueChange = { postTitle = it },
@@ -286,71 +288,7 @@ fun PostPage(
                 shape = RoundedCornerShape(12.dp),
                 singleLine = true
             )
-
-            //hub field with dropdown
-            Box(modifier = Modifier.fillMaxWidth()) {
-                TextField(
-                    value = hub,
-                    onValueChange = { hub = it },
-                    placeholder = {
-                        Text(
-                            text = "Hub...",
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                        )
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-                        disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                    ),
-                    shape = RoundedCornerShape(12.dp),
-                    singleLine = true
-                )
-
-                // Dropdown menu for hub suggestions
-                if (showHubDropdown && hubSuggestions.isNotEmpty()) {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 60.dp),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                        )
-                    ) {
-                        Column {
-                            hubSuggestions.take(5).forEach { suggestion ->
-                                Text(
-                                    text = suggestion,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            hub = suggestion
-                                            showHubDropdown = false
-                                        }
-                                        .padding(12.dp),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                if (suggestion != hubSuggestions.take(5).last()) {
-                                    HorizontalDivider(
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            //body field
+            // body field
             TextField(
                 value = body,
                 onValueChange = { body = it },
@@ -375,6 +313,120 @@ fun PostPage(
                 shape = RoundedCornerShape(12.dp),
                 singleLine = true
             )
+
+            var expanded by remember { mutableStateOf(false) }
+            val mainHubs = listOf("SCHOOL", "HOUSING", "TRANSPORTATION", "CITY", "SOCIAL", "MISC")
+            var selected by remember { mutableStateOf("") }
+
+            Button(
+                onClick = { expanded = true },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = Color.White
+                ),
+                border = BorderStroke(2.dp, Color.White),
+                elevation = null,
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                interactionSource = remember { MutableInteractionSource() }
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = selected.ifEmpty { "Select Hub" }
+                    )
+                    Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                }
+            }
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                mainHubs.forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(option) },
+                        onClick = {
+                            selected = option
+                            hub = option
+                            expanded = false
+                        }
+                    )
+                }
+            }
+
+
+            //hub field with dropdown
+//            Box(modifier = Modifier.fillMaxWidth()) {
+//
+//
+////                TextField(
+////                    value = hub,
+////                    onValueChange = { hub = it },
+////                    placeholder = {
+////                        Text(
+////                            text = "Hub...",
+////                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+////                        )
+////                    },
+////                    modifier = Modifier
+////                        .fillMaxWidth()
+////                        .height(56.dp),
+////                    colors = TextFieldDefaults.colors(
+////                        focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+////                        unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+////                        disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+////                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+////                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+////                        focusedIndicatorColor = Color.Transparent,
+////                        unfocusedIndicatorColor = Color.Transparent,
+////                    ),
+////                    shape = RoundedCornerShape(12.dp),
+////                    singleLine = true
+////                )
+//
+//                // Dropdown menu for hub suggestions
+////                if (showHubDropdown && hubSuggestions.isNotEmpty()) {
+////                    Card(
+////                        modifier = Modifier
+////                            .fillMaxWidth()
+////                            .padding(top = 60.dp),
+////                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+////                        colors = CardDefaults.cardColors(
+////                            containerColor = MaterialTheme.colorScheme.surface
+////                        )
+////                    ) {
+////                        Column {
+////                            hubSuggestions.take(5).forEach { suggestion ->
+////                                Text(
+////                                    text = suggestion,
+////                                    modifier = Modifier
+////                                        .fillMaxWidth()
+////                                        .clickable {
+////                                            hub = suggestion
+////                                            showHubDropdown = false
+////                                        }
+////                                        .padding(12.dp),
+////                                    style = MaterialTheme.typography.bodyLarge,
+////                                    color = MaterialTheme.colorScheme.onSurface
+////                                )
+////                                if (suggestion != hubSuggestions.take(5).last()) {
+////                                    HorizontalDivider(
+////                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
+////                                    )
+////                                }
+////                            }
+////                        }
+////                    }
+////                }
+//            }
+
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -534,6 +586,8 @@ fun PostPage(
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
+
+                    selected = ""
                 },
                 enabled = !isUploading,
                 modifier = Modifier
