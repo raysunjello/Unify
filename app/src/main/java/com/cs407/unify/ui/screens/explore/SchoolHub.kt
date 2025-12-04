@@ -1,4 +1,4 @@
-package com.cs407.unify.ui.screens.profile
+package com.cs407.unify.ui.screens.explore
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,8 +29,8 @@ import com.cs407.unify.ui.components.threads.ThreadCard
 import com.cs407.unify.ui.components.threads.ThreadStore
 
 @Composable
-fun SavedThreadsPage(onExit: () -> Unit, onClick: (Thread) -> Unit) {
-    var savedThreads by remember { mutableStateOf(ThreadStore.getSavedThreads()) }
+fun SchoolHubPage(onExit: () -> Unit, onClick: (Thread) -> Unit) {
+    var schoolHub by remember { mutableStateOf(ThreadStore.getSavedThreads()) } // TODO : change
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -57,13 +57,13 @@ fun SavedThreadsPage(onExit: () -> Unit, onClick: (Thread) -> Unit) {
                     .padding(top = 20.dp)
             ) {
                 Text(
-                    text = "SAVED STUFF",
+                    text = "SCHOOL",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold
                 )
 
                 when {
-                    savedThreads.isEmpty() -> {
+                    schoolHub.isEmpty() -> {
                         Text(
                             text = "No Posts",
                             modifier = Modifier.padding(24.dp),
@@ -74,7 +74,7 @@ fun SavedThreadsPage(onExit: () -> Unit, onClick: (Thread) -> Unit) {
                         LazyColumn(
                             modifier = Modifier.padding(all = 20.dp)
                         ) {
-                            items(savedThreads) { thread ->
+                            items(schoolHub) { thread ->
                                 ThreadCard(thread, onClick = { onClick(thread) })
                             }
                         }

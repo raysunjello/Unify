@@ -32,6 +32,7 @@ import com.cs407.unify.ui.screens.profile.ProfilePagePosts
 import com.cs407.unify.ui.screens.login.RegistrationPage
 import com.cs407.unify.ui.screens.profile.SettingsPage
 import androidx.lifecycle.ViewModelProvider
+import com.cs407.unify.ui.screens.explore.SchoolHubPage
 import com.cs407.unify.ui.screens.profile.SavedThreadsPage
 
 
@@ -151,7 +152,19 @@ fun AppNavigation() {
                 onNavigateToPostPage = { navController.navigate("post") },
                 onNavigateToMarketPage = { navController.navigate("market")},
                 onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
-                onNavigateToProfilePage = { navController.navigate("profile") }
+                onNavigateToProfilePage = { navController.navigate("profile") },
+                onClickSchool = { navController.navigate("hub_school") }
+            )
+        }
+
+        composable("hub_school") {
+            SchoolHubPage(
+                onExit = { navController.navigate("search") },
+                onClick = { thread ->
+                    // Store selected thread temporarily
+                    ThreadStore.selectedThread = thread
+                    navController.navigate("thread/hub_school") // TODO : change
+                }
             )
         }
 
@@ -183,6 +196,8 @@ fun AppNavigation() {
                             "feed" -> navController.popBackStack()
                             "my_posts" -> navController.popBackStack()
                             "saved_stuff" -> navController.popBackStack()
+                            "hub_school" -> navController.popBackStack()
+
                             else -> navController.popBackStack()
                         }
                     },
