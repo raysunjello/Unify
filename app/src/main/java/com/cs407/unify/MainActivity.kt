@@ -215,6 +215,7 @@ fun AppNavigation() {
 
         composable("saved_stuff") {
             SavedThreadsPage(
+                userState = userState,
                 onExit = { navController.navigate("profile") },
                 onClick = { thread ->
                     ThreadStore.selectedThread = thread

@@ -9,12 +9,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,13 +26,75 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.cs407.unify.data.Post
+import com.cs407.unify.data.UserState
 import com.cs407.unify.ui.components.threads.Thread
 import com.cs407.unify.ui.components.threads.ThreadCard
 import com.cs407.unify.ui.components.threads.ThreadStore
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
-fun SavedThreadsPage(onExit: () -> Unit, onClick: (Thread) -> Unit) {
-    var savedThreads by remember { mutableStateOf(ThreadStore.getSavedThreads()) }
+fun SavedThreadsPage(
+    userState: UserState,
+    onExit: () -> Unit,
+    onClick: (Thread) -> Unit
+) {
+    var savedThreads by remember { mutableStateOf<List<Thread>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+
+    LaunchedEffect(userState.uid) {
+        if (userState.uid.isBlank()) {
+            isLoading = false
+            return@LaunchedEffect
+        }
+
+        val db = FirebaseFirestore.getInstance()
+
+        // First, get all saved post IDs
+        db.collection("users")
+            .document(userState.uid)
+            .collection("savedPosts")
+            .get()
+            .addOnSuccessListener { savedSnapshot ->
+                val savedIds = savedSnapshot.documents.map { it.id }
+
+                if (savedIds.isEmpty()) {
+                    savedThreads = emptyList()
+                    isLoading = false
+                    return@addOnSuccessListener
+                }
+
+                // Update ThreadStore
+                ThreadStore.savedThreadIds.clear()
+                ThreadStore.savedThreadIds.addAll(savedIds)
+
+                // Then fetch the actual posts (max 10 at a time due to Firebase limit)
+                db.collection("posts")
+                    .whereIn("id", savedIds.take(10))
+                    .get()
+                    .addOnSuccessListener { postsSnapshot ->
+                        val loadedThreads = postsSnapshot.documents.mapNotNull { doc ->
+                            val post = doc.toObject(Post::class.java)
+                            post?.let {
+                                Thread(
+                                    id = it.id,
+                                    title = it.title,
+                                    body = it.body,
+                                    hub = it.hub
+                                )
+                            }
+                        }
+                        savedThreads = loadedThreads
+                        isLoading = false
+                    }
+                    .addOnFailureListener {
+                        isLoading = false
+                    }
+            }
+            .addOnFailureListener {
+                isLoading = false
+            }
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -63,9 +127,14 @@ fun SavedThreadsPage(onExit: () -> Unit, onClick: (Thread) -> Unit) {
                 )
 
                 when {
+                    isLoading -> {
+                        CircularProgressIndicator(
+                            modifier = Modifier.padding(24.dp)
+                        )
+                    }
                     savedThreads.isEmpty() -> {
                         Text(
-                            text = "No Posts",
+                            text = "No saved posts yet",
                             modifier = Modifier.padding(24.dp),
                             color = Color.Gray
                         )
