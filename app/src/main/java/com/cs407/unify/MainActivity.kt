@@ -20,7 +20,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.cs407.unify.ViewModels.UserViewModel
 import com.cs407.unify.data.AppDatabase
-import com.cs407.unify.ui.screens.HomePage.SearchPage
+import com.cs407.unify.ui.screens.explore.SearchPage
 import com.cs407.unify.ui.screens.login.LoginPage
 import com.cs407.unify.ui.screens.login.ForgotPasswordPage
 import com.cs407.unify.ui.screens.MainFeedPage
@@ -34,6 +34,7 @@ import com.cs407.unify.ui.screens.login.RegistrationPage
 import com.cs407.unify.ui.screens.profile.SettingsPage
 import androidx.lifecycle.ViewModelProvider
 import com.cs407.unify.ui.screens.explore.SchoolHubPage
+import com.cs407.unify.ui.screens.explore.HubPostsPage
 import com.cs407.unify.ui.screens.profile.SavedThreadsPage
 
 
@@ -91,6 +92,7 @@ fun AppNavigation() {
         composable("forgot_password") {
             ForgotPasswordPage(
                 onNavigateBack = { navController.popBackStack() },
+
             )
         }
 
@@ -161,7 +163,25 @@ fun AppNavigation() {
                 onNavigateToMarketPage = { navController.navigate("market")},
                 onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
                 onNavigateToProfilePage = { navController.navigate("profile") },
-                onClickSchool = { navController.navigate("hub_school") }
+                onClickHub = { hubName -> navController.navigate("hub/${hubName}") }
+            )
+        }
+
+        composable(
+            route = "hub/{hubName}",
+            arguments = listOf(
+                navArgument("hubName") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val hubName = backStackEntry.arguments?.getString("hubName") ?: "School"
+
+            HubPostsPage(
+                hubName = hubName,
+                onExit = { navController.popBackStack() },
+                onClick = { thread ->
+                    ThreadStore.selectedThread = thread
+                    navController.navigate("thread/hub")
+                }
             )
         }
 

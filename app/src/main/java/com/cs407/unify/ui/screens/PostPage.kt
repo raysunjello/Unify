@@ -11,6 +11,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,6 +33,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import com.cs407.unify.R
+import com.cs407.unify.data.Hub
 import com.cs407.unify.data.Post
 import com.cs407.unify.data.UserState
 import com.cs407.unify.ui.components.UnifyBottomBar
@@ -56,8 +58,35 @@ fun PostPage(
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var showImageSourceDialog by remember { mutableStateOf(false) }
     var isUploading by remember { mutableStateOf(false) }
+    var showHubDropdown by remember { mutableStateOf(false) }
+    var hubSuggestions by remember { mutableStateOf<List<String>>(emptyList()) }
 
     val context = LocalContext.current
+    val db = FirebaseFirestore.getInstance()
+
+    // Fetch hub suggestions based on user input
+    LaunchedEffect(hub) {
+        if (hub.isNotEmpty()) {
+            db.collection("hubs")
+                .orderBy("name")
+                .startAt(hub.uppercase())
+                .endAt(hub.uppercase() + "\uf8ff")
+                .get()
+                .addOnSuccessListener { snapshot ->
+                    hubSuggestions = snapshot.documents.mapNotNull { doc ->
+                        doc.getString("name")
+                    }
+                    showHubDropdown = hubSuggestions.isNotEmpty()
+                }
+                .addOnFailureListener {
+                    hubSuggestions = emptyList()
+                    showHubDropdown = false
+                }
+        } else {
+            hubSuggestions = emptyList()
+            showHubDropdown = false
+        }
+    }
 
     // Create a temporary file for camera capture
     val tempImageFile = remember {
@@ -107,7 +136,7 @@ fun PostPage(
         }
     }
 
-    // Gallery permission launcher (for Android 13+)
+    // Gallery permission launcher
     val galleryPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -125,7 +154,7 @@ fun PostPage(
             val bitmap = BitmapFactory.decodeStream(inputStream)
             inputStream?.close()
 
-            // Compress bitmap to reduce size (max 1MB recommended for Firestore)
+            // Compress bitmap to reduce size
             val outputStream = ByteArrayOutputStream()
             var quality = 80
             bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
@@ -176,7 +205,6 @@ fun PostPage(
                 TextButton(
                     onClick = {
                         showImageSourceDialog = false
-                        // Check gallery permission (Android 13+)
                         when (PackageManager.PERMISSION_GRANTED) {
                             ContextCompat.checkSelfPermission(
                                 context,
@@ -258,29 +286,60 @@ fun PostPage(
                 singleLine = true
             )
 
-            //hub field
-            TextField(
-                value = hub,
-                onValueChange = { hub = it },
-                placeholder = {
-                    Text(
-                        text = "Hub...",
-                        color = Color.Gray
-                    )
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color(0xFFE8E8E8),
-                    unfocusedContainerColor = Color(0xFFE8E8E8),
-                    disabledContainerColor = Color(0xFFE8E8E8),
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                ),
-                shape = RoundedCornerShape(12.dp),
-                singleLine = true
-            )
+            //hub field with dropdown
+            Box(modifier = Modifier.fillMaxWidth()) {
+                TextField(
+                    value = hub,
+                    onValueChange = { hub = it },
+                    placeholder = {
+                        Text(
+                            text = "Hub...",
+                            color = Color.Gray
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFFE8E8E8),
+                        unfocusedContainerColor = Color(0xFFE8E8E8),
+                        disabledContainerColor = Color(0xFFE8E8E8),
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true
+                )
+
+                // Dropdown menu for hub suggestions
+                if (showHubDropdown && hubSuggestions.isNotEmpty()) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 60.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    ) {
+                        Column {
+                            hubSuggestions.take(5).forEach { suggestion ->
+                                Text(
+                                    text = suggestion,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            hub = suggestion
+                                            showHubDropdown = false
+                                        }
+                                        .padding(12.dp),
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                                if (suggestion != hubSuggestions.take(5).last()) {
+                                    HorizontalDivider()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             //body field
             TextField(
@@ -412,37 +471,59 @@ fun PostPage(
                         return@Button
                     }
 
-                    val db = FirebaseFirestore.getInstance()
-                    val postsCollection = db.collection("posts")
-                    val docRef = postsCollection.document()
+                    // Check if hub exists, if not create it
+                    db.collection("hubs")
+                        .whereEqualTo("name", hub.trim().uppercase())
+                        .get()
+                        .addOnSuccessListener { hubSnapshot ->
+                            if (hubSnapshot.isEmpty) {
+                                // Hub doesn't exist, create it
+                                val newHub = Hub(
+                                    name = hub.trim().uppercase(),
+                                )
+                                db.collection("hubs").add(newHub)
+                            }
 
-                    val post = Post(
-                        id = docRef.id,
-                        title = postTitle,
-                        body = body,
-                        hub = hub,
-                        isAnonymous = postAnon,
-                        authorUid = userState.uid,
-                        authorUsername = if (postAnon) null else userState.username,
-                        authorUniversity = if (postAnon) null else userState.university,
-                        createdAt = System.currentTimeMillis(),
-                        imageBase64 = imageBase64
-                    )
+                            // Proceed with creating the post
+                            val postsCollection = db.collection("posts")
+                            val docRef = postsCollection.document()
 
-                    docRef.set(post)
-                        .addOnSuccessListener {
-                            isUploading = false
-                            postTitle = ""
-                            body = ""
-                            hub = ""
-                            imageUri = null
-                            Toast.makeText(context, "Post uploaded!", Toast.LENGTH_SHORT).show()
+                            val post = Post(
+                                id = docRef.id,
+                                title = postTitle,
+                                body = body,
+                                hub = hub.trim().uppercase(),
+                                isAnonymous = postAnon,
+                                authorUid = userState.uid,
+                                authorUsername = if (postAnon) null else userState.username,
+                                authorUniversity = if (postAnon) null else userState.university,
+                                createdAt = System.currentTimeMillis(),
+                                imageBase64 = imageBase64
+                            )
+
+                            docRef.set(post)
+                                .addOnSuccessListener {
+                                    isUploading = false
+                                    postTitle = ""
+                                    body = ""
+                                    hub = ""
+                                    imageUri = null
+                                    Toast.makeText(context, "Post uploaded!", Toast.LENGTH_SHORT).show()
+                                }
+                                .addOnFailureListener { e ->
+                                    isUploading = false
+                                    Toast.makeText(
+                                        context,
+                                        "Upload failed: ${e.message}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
                         }
                         .addOnFailureListener { e ->
                             isUploading = false
                             Toast.makeText(
                                 context,
-                                "Upload failed: ${e.message}",
+                                "Failed to check hub: ${e.message}",
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
