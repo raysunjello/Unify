@@ -3,6 +3,8 @@ package com.cs407.unify.ui.screens.explore
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -30,6 +32,8 @@ import com.cs407.unify.ui.components.BottomTab
 import com.cs407.unify.ui.components.UnifyBottomBar
 import com.google.firebase.firestore.FirebaseFirestore
 
+
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewSearchPage() {
@@ -56,6 +60,8 @@ fun SearchPage(
 
     val db = FirebaseFirestore.getInstance()
 
+    val defaultHubsOrder = listOf("School", "Housing", "Transportation", "City", "Social", "Misc")
+
     // Load all hubs from database
     LaunchedEffect(Unit) {
         db.collection("hubs")
@@ -66,7 +72,7 @@ fun SearchPage(
                     doc.getString("name")
                 }
                 allHubs = hubs
-                filteredHubs = hubs
+                filteredHubs = defaultsThenOthers(hubs, defaultHubsOrder)
                 isLoading = false
             }
             .addOnFailureListener {
@@ -74,10 +80,9 @@ fun SearchPage(
             }
     }
 
-    // Filter hubs based on search input
     LaunchedEffect(prompt) {
         filteredHubs = if (prompt.isBlank()) {
-            allHubs
+            defaultsThenOthers(allHubs, defaultHubsOrder)
         } else {
             allHubs.filter { hub ->
                 hub.lowercase().startsWith(prompt.lowercase())
@@ -134,24 +139,32 @@ fun SearchPage(
                         )
                     }
                     else -> {
-                        filteredHubs.forEach { hubName ->
-                            ElevatedCard(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .wrapContentHeight()
-                                    .padding(16.dp)
-                                    .clickable { onClickHub(hubName) },
-                                shape = MaterialTheme.shapes.extraLarge,
-                                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
-                            ) {
-                                Text(
-                                    text = hubName.uppercase(),
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold,
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(12.dp),
+                            contentPadding = PaddingValues(bottom = 80.dp), // Space for bottom nav bar
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            items(filteredHubs) { hubName ->
+                                ElevatedCard(
                                     modifier = Modifier
-                                        .padding(25.dp)
+                                        .fillMaxWidth()
+                                        .wrapContentHeight()
+                                        .padding(16.dp)
+                                        .clickable { onClickHub(hubName) },
+                                    shape = MaterialTheme.shapes.extraLarge,
+                                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+                                ) {
+                                    Text(
+                                        text = hubName.uppercase(),
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier
+                                            .padding(25.dp)
 
-                                )
+                                    )
+                                }
                             }
                         }
                     }
@@ -170,4 +183,31 @@ fun SearchPage(
             modifier = Modifier.align(Alignment.BottomCenter)
         )
     }
+}
+/**
+ * sorts hubs in alphabetical order but with the default hubs first in this order:
+ * School, Housing, Transport, City, Social, Misc
+ */
+fun defaultsThenOthers(hubs: List<String>, defaultOrder: List<String>): List<String> {
+    val defaultHubs = mutableListOf<String>()
+    val otherHubs = mutableListOf<String>()
+
+    // Separate hubs into defaults and others
+    hubs.forEach { hub ->
+        if (defaultOrder.any { it.equals(hub, ignoreCase = true) }) {
+            defaultHubs.add(hub)
+        } else {
+            otherHubs.add(hub)
+        }
+    }
+    // Sort defaults by the specified order
+    val sortedDefaults = defaultOrder.mapNotNull { defaultName ->
+        defaultHubs.find { it.equals(defaultName, ignoreCase = true) }
+    }
+
+    // Sort other hubs alphabetically
+    val sortedOthers = otherHubs.sorted()
+
+    // Combine: defaults first, then others
+    return sortedDefaults + sortedOthers
 }
