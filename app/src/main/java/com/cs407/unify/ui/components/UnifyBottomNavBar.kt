@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.cs407.unify.ui.theme.AppTheme
 
 enum class BottomTab { Feed, Search, Post, Market, Profile }
 
@@ -38,7 +39,7 @@ fun UnifyBottomBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.LightGray)
+                .background(AppTheme.customColors.gradientTop.copy(alpha = 1f))
                 .padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically

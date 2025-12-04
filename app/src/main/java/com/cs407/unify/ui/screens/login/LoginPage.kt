@@ -1,7 +1,7 @@
 package com.cs407.unify.ui.screens.login
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -36,7 +36,8 @@ import com.cs407.unify.data.UserProfile
 fun LoginPage(
     userViewModel: UserViewModel,
     onNavigateToMainFeedPage: () -> Unit,
-    onNavigateToRegistrationPage: (String) -> Unit
+    onNavigateToRegistrationPage: (String) -> Unit,
+    onNavigateToForgotPassword: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -46,7 +47,6 @@ fun LoginPage(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
@@ -60,30 +60,29 @@ fun LoginPage(
             modifier = Modifier
                 .size(300.dp)
                 .padding(bottom = 16.dp)
-                .clip(CircleShape),
+                .clip(CircleShape)
+                .border(4.dp, Color.Black, CircleShape),
             contentScale = ContentScale.FillBounds,
             colorFilter = null
         )
 
         //username field
-        TextField(
+        OutlinedTextField(
             value = email,
             onValueChange = { email = it },
             placeholder = {
                 Text(
-                    text = "Email",
-                    color = Color.Gray
+                    text = "Email...",
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color(0xFFE8E8E8),
-                unfocusedContainerColor = Color(0xFFE8E8E8),
-                disabledContainerColor = Color(0xFFE8E8E8),
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
             ),
             shape = RoundedCornerShape(12.dp),
             singleLine = true
@@ -96,7 +95,7 @@ fun LoginPage(
             placeholder = {
                 Text(
                     text = "Password...",
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
             },
             visualTransformation = PasswordVisualTransformation(),
@@ -105,11 +104,9 @@ fun LoginPage(
                 .fillMaxWidth()
                 .height(56.dp),
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color(0xFFE8E8E8),
-                unfocusedContainerColor = Color(0xFFE8E8E8),
-                disabledContainerColor = Color(0xFFE8E8E8),
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
             ),
             shape = RoundedCornerShape(12.dp),
             singleLine = true
@@ -120,9 +117,9 @@ fun LoginPage(
         //Forgot password button
         Text(
             text = "Forgot Password?",
-            color = Color.Black,
+            color = Color.White,
             modifier = Modifier.clickable{
-                FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+                onNavigateToForgotPassword()
             }
         )
 
@@ -185,7 +182,8 @@ fun LoginPage(
                             .addOnSuccessListener { document ->
                                 val profile = document.toObject(UserProfile::class.java)
 
-                                if (profile != null) {
+                                if (profile != null && profile.username.isNotBlank()) {
+                                    // Complete profile exists, go to main feed
                                     userViewModel.setUser(
                                         UserState(
                                             uid = profile.uid,
@@ -195,7 +193,9 @@ fun LoginPage(
                                             isLoggedIn = true
                                         )
                                     )
+                                    onNavigateToMainFeedPage()
                                 } else {
+                                    // Profile doesn't exist or is incomplete, go to registration
                                     userViewModel.setUser(
                                         UserState(
                                             uid = uid,
@@ -203,11 +203,11 @@ fun LoginPage(
                                             isLoggedIn = true
                                         )
                                     )
+                                    onNavigateToRegistrationPage(uid)
                                 }
-
-                                onNavigateToMainFeedPage()
                             }
                             .addOnFailureListener {
+                                // If Firestore check fails, assume new user and go to registration
                                 userViewModel.setUser(
                                     UserState(
                                         uid = uid,
@@ -215,7 +215,7 @@ fun LoginPage(
                                         isLoggedIn = true
                                     )
                                 )
-                                onNavigateToMainFeedPage()
+                                onNavigateToRegistrationPage(uid)
                             }
                     },
                     onNewUser = { uid ->
@@ -235,7 +235,14 @@ fun LoginPage(
                     },
                     onFailure = { msg ->
                         isLoading = false
-                        error = msg
+                        // Check if it's an authentication error and show generic message
+                        error = if (msg.contains("password", ignoreCase = true) ||
+                            msg.contains("email", ignoreCase = true) ||
+                            msg.contains("credentials", ignoreCase = true)) {
+                            "Wrong username or password"
+                        } else {
+                            msg
+                        }
                     }
                 )
             },
@@ -243,16 +250,12 @@ fun LoginPage(
             modifier = Modifier
                 .width(250.dp)
                 .height(56.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Black
-            ),
             shape = RoundedCornerShape(28.dp)
         ) {
             Text(
                 text = if (isLoading) "Loading..." else "Login/Signup",
                 fontSize = 25.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
                 letterSpacing = 2.sp
             )
         }

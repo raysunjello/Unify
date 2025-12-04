@@ -12,5 +12,6 @@ data class Post(
     val authorUniversity: String? = null,
 
     val createdAt: Long = System.currentTimeMillis(),
-    val comments: List<Comment> = emptyList()
+    val comments: List<Comment> = emptyList(),
+    val imageBase64: String? = null
 )

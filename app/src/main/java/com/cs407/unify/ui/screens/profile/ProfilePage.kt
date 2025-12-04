@@ -128,12 +128,14 @@ fun ProfilePage(
                 text = username, // TODO replace w string
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(top = 16.dp),
-                style = MaterialTheme.typography.displaySmall
+                style = MaterialTheme.typography.displaySmall,
+                color = MaterialTheme.colorScheme.onBackground
             )
             Text(
                 text = university, // TODO replace w string
                 modifier = Modifier.padding(vertical = 8.dp),
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onBackground
             )
 
             Spacer(Modifier.height(24.dp))

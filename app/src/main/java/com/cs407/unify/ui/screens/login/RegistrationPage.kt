@@ -6,7 +6,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.cs407.unify.data.UserProfile
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -18,6 +17,7 @@ fun RegistrationPage(
 ) {
     var username by remember { mutableStateOf("") }
     var university by remember { mutableStateOf("") }
+    var securityAnswer by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
     var isLoading by remember { mutableStateOf(false) }
 
@@ -55,6 +55,16 @@ fun RegistrationPage(
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        OutlinedTextField(
+            value = securityAnswer,
+            onValueChange = { securityAnswer = it },
+            label = { Text("What is your mother's maiden name?") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
         Text(text = "Email: $email")
 
         error?.let {
@@ -68,7 +78,7 @@ fun RegistrationPage(
             onClick = {
                 if (isLoading) return@Button
 
-                if (username.isBlank() || university.isBlank()) {
+                if (username.isBlank() || university.isBlank() || securityAnswer.isBlank()) {
                     error = "Please fill in all fields."
                     return@Button
                 }
@@ -76,29 +86,47 @@ fun RegistrationPage(
                 isLoading = true
                 error = null
 
-
                 val db = FirebaseFirestore.getInstance()
-                val profile = UserProfile(
-                    uid = uid,
-                    email = email,
-                    username = username,
-                    university = university
-                )
 
+                // First, check if username already exists
                 db.collection("users")
-                    .document(uid)
-                    .set(profile)
-                    .addOnCompleteListener { task ->
-                        isLoading = false
-
-                        if (task.isSuccessful) {
-                            onRegistrationComplete()
+                    .whereEqualTo("username", username)
+                    .get()
+                    .addOnSuccessListener { querySnapshot ->
+                        if (!querySnapshot.isEmpty) {
+                            // Username already exists
+                            isLoading = false
+                            error = "Username taken"
                         } else {
-                            error = task.exception?.message ?: "Failed to save profile."
+                            // Username is unique, proceed with registration
+                            val profileData = hashMapOf(
+                                "uid" to uid,
+                                "email" to email,
+                                "username" to username,
+                                "university" to university,
+                                "securityAnswer" to securityAnswer
+                            )
+
+                            db.collection("users")
+                                .document(uid)
+                                .set(profileData)
+                                .addOnCompleteListener { task ->
+                                    isLoading = false
+
+                                    if (task.isSuccessful) {
+                                        onRegistrationComplete()
+                                    } else {
+                                        error = task.exception?.message ?: "Failed to save profile."
+                                    }
+                                }
                         }
                     }
+                    .addOnFailureListener { e ->
+                        isLoading = false
+                        error = "Failed to check username availability: ${e.message}"
+                    }
             },
-            enabled = !isLoading,
+            enabled = !isLoading && username.isNotBlank() && university.isNotBlank() && securityAnswer.isNotBlank(),
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(if (isLoading) "Saving..." else "Finish")
