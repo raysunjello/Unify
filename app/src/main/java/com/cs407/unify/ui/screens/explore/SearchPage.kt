@@ -1,16 +1,19 @@
 package com.cs407.unify.ui.screens.explore
 
 import androidx.compose.runtime.Composable
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -91,15 +94,25 @@ fun SearchPage(
                 .padding(start = 16.dp, end = 16.dp, top = 48.dp)
         ) {
 
-            TextField(
+            OutlinedTextField(
                 value = prompt,
                 onValueChange = {prompt = it},
                 placeholder = { Text("Search hubs...") },
                 singleLine = true,
+                colors = TextFieldDefaults.colors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent
+                ),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search",
+                    )
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(50.dp))
-                    .background(Color(0xFFD3D3D3))
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -116,7 +129,6 @@ fun SearchPage(
                         Text(
                             text = "This hub does not currently exist, make a post to this hub to create it!",
                             style = MaterialTheme.typography.bodyLarge,
-                            color = Color.Gray,
                             modifier = Modifier.padding(24.dp),
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center
                         )

@@ -1,7 +1,6 @@
 package com.cs407.unify.ui.screens
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -109,7 +108,6 @@ fun MainFeedPage(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Top)
@@ -170,13 +168,13 @@ fun MainFeedPage(
                             Text(
                                 text = "Popular Threads",
                                 style = MaterialTheme.typography.headlineMedium,
-                                color = Color.Black
+                                color = MaterialTheme.colorScheme.onBackground
                             )
 
                             Text(
                                 text = "Trending / popular threads that have a lot of recent activity. Or suggested threads that user may be interested in.",
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = Color.DarkGray
+                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.9f)
 
                             )
                         }

@@ -61,9 +61,6 @@ fun ThreadCard(
             .padding(horizontal = 10.dp, vertical = 12.dp)
             .combinedClickable(onClick = { onClick() }),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.Unspecified, // TODO
-        )
     ) {
         Column(modifier = Modifier.padding(10.dp)) {
             // Display image at top if exists
@@ -99,7 +96,6 @@ fun ThreadCard(
                     text = thread.hub,
                     fontWeight = FontWeight.Normal,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray,
                     modifier = Modifier.padding(5.dp)
                 )
             }

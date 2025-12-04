@@ -99,7 +99,7 @@ fun SavedThreadsPage(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color.White
+        color = Color.Transparent
     ) {
         Box(
             modifier = Modifier
@@ -137,7 +137,6 @@ fun SavedThreadsPage(
                         Text(
                             text = "No saved posts yet",
                             modifier = Modifier.padding(24.dp),
-                            color = Color.Gray
                         )
                     }
                     else -> {

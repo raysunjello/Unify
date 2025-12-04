@@ -33,7 +33,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import com.cs407.unify.R
-import com.cs407.unify.data.Hub
 import com.cs407.unify.data.Post
 import com.cs407.unify.data.UserState
 import com.cs407.unify.ui.components.UnifyBottomBar
@@ -68,9 +67,9 @@ fun PostPage(
     LaunchedEffect(hub) {
         if (hub.isNotEmpty()) {
             db.collection("hubs")
-                .orderBy("name")
-                .startAt(hub.uppercase())
-                .endAt(hub.uppercase() + "\uf8ff")
+                .orderBy("nameLowercase")
+                .startAt(hub.lowercase())
+                .endAt(hub.lowercase() + "\uf8ff")
                 .get()
                 .addOnSuccessListener { snapshot ->
                     hubSuggestions = snapshot.documents.mapNotNull { doc ->
@@ -136,7 +135,7 @@ fun PostPage(
         }
     }
 
-    // Gallery permission launcher
+    // Gallery permission launcher (for Android 13+)
     val galleryPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -154,7 +153,7 @@ fun PostPage(
             val bitmap = BitmapFactory.decodeStream(inputStream)
             inputStream?.close()
 
-            // Compress bitmap to reduce size
+            // Compress bitmap to reduce size (max 1MB recommended for Firestore)
             val outputStream = ByteArrayOutputStream()
             var quality = 80
             bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
@@ -231,7 +230,6 @@ fun PostPage(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -263,22 +261,25 @@ fun PostPage(
             }
 
             //post title field
+            //post title field
             TextField(
                 value = postTitle,
                 onValueChange = { postTitle = it },
                 placeholder = {
                     Text(
                         text = "Post Title...",
-                        color = Color.Gray
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color(0xFFE8E8E8),
-                    unfocusedContainerColor = Color(0xFFE8E8E8),
-                    disabledContainerColor = Color(0xFFE8E8E8),
+                    focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                    disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                 ),
@@ -294,16 +295,18 @@ fun PostPage(
                     placeholder = {
                         Text(
                             text = "Hub...",
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                         )
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFFE8E8E8),
-                        unfocusedContainerColor = Color(0xFFE8E8E8),
-                        disabledContainerColor = Color(0xFFE8E8E8),
+                        focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                        disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
                     ),
@@ -317,7 +320,10 @@ fun PostPage(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 60.dp),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        )
                     ) {
                         Column {
                             hubSuggestions.take(5).forEach { suggestion ->
@@ -330,10 +336,13 @@ fun PostPage(
                                             showHubDropdown = false
                                         }
                                         .padding(12.dp),
-                                    style = MaterialTheme.typography.bodyLarge
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 if (suggestion != hubSuggestions.take(5).last()) {
-                                    HorizontalDivider()
+                                    HorizontalDivider(
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
+                                    )
                                 }
                             }
                         }
@@ -348,16 +357,18 @@ fun PostPage(
                 placeholder = {
                     Text(
                         text = "Body...",
-                        color = Color.Gray
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color(0xFFE8E8E8),
-                    unfocusedContainerColor = Color(0xFFE8E8E8),
-                    disabledContainerColor = Color(0xFFE8E8E8),
+                    focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                    disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                 ),
@@ -377,7 +388,7 @@ fun PostPage(
                     text = "Add Image?",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 IconButton(
                     onClick = {
@@ -394,14 +405,14 @@ fun PostPage(
                     modifier = Modifier
                         .size(48.dp)
                         .background(
-                            color = Color.LightGray,
+                            color = MaterialTheme.colorScheme.surface,
                             shape = CircleShape
                         )
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Add,
                         contentDescription = "Add Image",
-                        tint = Color.Black,
+                        tint = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -417,17 +428,11 @@ fun PostPage(
                     text = "Post Anon?",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 Switch(
                     checked = postAnon,
                     onCheckedChange = { postAnon = it },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
-                        checkedTrackColor = Color.Gray,
-                        uncheckedThumbColor = Color.White,
-                        uncheckedTrackColor = Color.LightGray
-                    )
                 )
             }
 
@@ -473,13 +478,15 @@ fun PostPage(
 
                     // Check if hub exists, if not create it
                     db.collection("hubs")
-                        .whereEqualTo("name", hub.trim().uppercase())
+                        .whereEqualTo("nameLowercase", hub.trim().lowercase())
                         .get()
                         .addOnSuccessListener { hubSnapshot ->
                             if (hubSnapshot.isEmpty) {
                                 // Hub doesn't exist, create it
-                                val newHub = Hub(
-                                    name = hub.trim().uppercase(),
+                                val newHub = hashMapOf(
+                                    "name" to hub.trim(),
+                                    "nameLowercase" to hub.trim().lowercase(),
+                                    "createdAt" to System.currentTimeMillis()
                                 )
                                 db.collection("hubs").add(newHub)
                             }
@@ -492,7 +499,7 @@ fun PostPage(
                                 id = docRef.id,
                                 title = postTitle,
                                 body = body,
-                                hub = hub.trim().uppercase(),
+                                hub = hub.trim(),
                                 isAnonymous = postAnon,
                                 authorUid = userState.uid,
                                 authorUsername = if (postAnon) null else userState.username,
@@ -532,9 +539,6 @@ fun PostPage(
                 modifier = Modifier
                     .width(200.dp)
                     .height(56.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Black
-                ),
                 shape = RoundedCornerShape(28.dp)
             ) {
                 Text(

@@ -72,7 +72,7 @@ fun HubPostsPage(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color.White
+        color = Color.Transparent
     ) {
         Box(
             modifier = Modifier
@@ -109,8 +109,7 @@ fun HubPostsPage(
                     hubPosts.isEmpty() -> {
                         Text(
                             text = "No Posts in this hub yet",
-                            modifier = Modifier.padding(24.dp),
-                            color = Color.Gray
+                            modifier = Modifier.padding(24.dp)
                         )
                     }
                     else -> {

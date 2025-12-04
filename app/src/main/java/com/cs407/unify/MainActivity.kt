@@ -4,11 +4,17 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -36,6 +42,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.cs407.unify.ui.screens.explore.SchoolHubPage
 import com.cs407.unify.ui.screens.explore.HubPostsPage
 import com.cs407.unify.ui.screens.profile.SavedThreadsPage
+import com.cs407.unify.ui.theme.AppTheme
 
 
 class MainActivity : ComponentActivity() {
@@ -54,7 +61,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-
 
     val context = LocalContext.current
 
@@ -76,185 +82,202 @@ fun AppNavigation() {
 
     val userState by userViewModel.userState.collectAsState()
 
-    NavHost(
-        navController = navController,
-        startDestination = "login" // display landing page on app start
-    ){
-        composable("login"){
-            LoginPage(
-                userViewModel = userViewModel,
-                onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
-                onNavigateToRegistrationPage = { uid -> navController.navigate("register/$uid") },
-                onNavigateToForgotPassword = { navController.navigate("forgot_password") }
-            )
-        }
+    // Access the custom gradient colors from the app's theme
+    val gradientTopColor = AppTheme.customColors.gradientTop
+    val gradientBottomColor = AppTheme.customColors.gradientBottom
 
-        composable("forgot_password") {
-            ForgotPasswordPage(
-                onNavigateBack = { navController.popBackStack() },
+    Surface(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        gradientTopColor,
+                        gradientBottomColor
+                    )
+                )
+            ),
+        color = Color.Transparent
+    ) {
+        NavHost(
+            navController = navController,
+            startDestination = "login" // display landing page on app start
+        ){
+            composable("login"){
+                LoginPage(
+                    userViewModel = userViewModel,
+                    onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
+                    onNavigateToRegistrationPage = { uid -> navController.navigate("register/$uid") },
+                    onNavigateToForgotPassword = { navController.navigate("forgot_password") }
+                )
+            }
 
-            )
-        }
+            composable("forgot_password") {
+                ForgotPasswordPage(
+                    onNavigateBack = { navController.popBackStack() },
+                )
+            }
 
-        composable(
-            route = "register/{uid}",
-            arguments = listOf(
-                navArgument("uid") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val uid = backStackEntry.arguments?.getString("uid") ?: ""
+            composable(
+                route = "register/{uid}",
+                arguments = listOf(
+                    navArgument("uid") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val uid = backStackEntry.arguments?.getString("uid") ?: ""
 
-            RegistrationPage(
-                uid = uid,
-                onRegistrationComplete = {
-                    navController.navigate("mainfeed") {
-                        popUpTo("login") { inclusive = true }
+                RegistrationPage(
+                    uid = uid,
+                    onRegistrationComplete = {
+                        navController.navigate("mainfeed") {
+                            popUpTo("login") { inclusive = true }
+                        }
+                    }
+                )
+            }
+
+            composable("mainfeed"){
+                MainFeedPage(
+                    onNavigateToPostPage = { navController.navigate("post") },
+                    onNavigateToMarketPage = { navController.navigate("market") },
+                    onNavigateToProfilePage = { navController.navigate("profile") },
+                    onNavigateToSearchPage = { navController.navigate("search") },
+                    onNavigateToThreadPage = {
+                        navController.navigate("thread/feed")
+                    }
+                )
+            }
+
+            composable("post"){
+                PostPage(
+                    userState = userState,
+                    onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
+                    onNavigateToMarketPage = { navController.navigate("market") },
+                    onNavigateToProfilePage = { navController.navigate("profile") },
+                    onNavigateToSearchPage = { navController.navigate("search") }
+                )
+            }
+
+            composable("market"){
+                MarketPage(
+                    onNavigateToPostPage = { navController.navigate("post") },
+                    onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
+                    onNavigateToProfilePage = { navController.navigate("profile") },
+                    onNavigateToSearchPage = { navController.navigate("search") }
+                )
+            }
+
+            composable("profile"){
+                ProfilePage(
+                    onNavigateToPostPage = { navController.navigate("post") },
+                    onNavigateToMarketPage = { navController.navigate("market") },
+                    onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
+                    onNavigateToSearchPage = { navController.navigate("search") },
+                    onNavigateToMyPosts = { navController.navigate("my_posts")},
+                    onNavigateToSettingsPage = {navController.navigate("settings")},
+                    onNavigateToSavedStuff = { navController.navigate("saved_stuff")}
+                )
+            }
+
+            composable("search"){
+                SearchPage(
+                    onNavigateToPostPage = { navController.navigate("post") },
+                    onNavigateToMarketPage = { navController.navigate("market")},
+                    onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
+                    onNavigateToProfilePage = { navController.navigate("profile") },
+                    onClickHub = { hubName -> navController.navigate("hub/${hubName}") }
+                )
+            }
+
+            composable(
+                route = "hub/{hubName}",
+                arguments = listOf(
+                    navArgument("hubName") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val hubName = backStackEntry.arguments?.getString("hubName") ?: "School"
+
+                HubPostsPage(
+                    hubName = hubName,
+                    onExit = { navController.popBackStack() },
+                    onClick = { thread ->
+                        ThreadStore.selectedThread = thread
+                        navController.navigate("thread/hub")
+                    }
+                )
+            }
+
+            composable("hub_school") {
+                SchoolHubPage(
+                    onExit = { navController.navigate("search") },
+                    onClick = { thread ->
+                        // Store selected thread temporarily
+                        ThreadStore.selectedThread = thread
+                        navController.navigate("thread/hub_school") // TODO : change
+                    }
+                )
+            }
+
+            composable("my_posts") {
+                ProfilePagePosts (
+                    userState = userState,
+                    onExit = {navController.navigate("profile")},
+                    onClick = { thread ->
+                        // Store selected thread temporarily
+                        ThreadStore.selectedThread = thread
+                        navController.navigate("thread/my_posts")
+                    }
+                )
+            }
+
+            composable(
+                route = "thread/{source}",
+                arguments = listOf(
+                    navArgument("source") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val source = backStackEntry.arguments?.getString("source") ?: "my_posts"
+                val selectedThread = ThreadStore.selectedThread
+                if (selectedThread != null) {
+                    ThreadPage(
+                        thread = selectedThread,
+                        onExit = {
+                            when (source) {
+                                "feed" -> navController.popBackStack()
+                                "my_posts" -> navController.popBackStack()
+                                "saved_stuff" -> navController.popBackStack()
+                                "hub_school" -> navController.popBackStack()
+
+                                else -> navController.popBackStack()
+                            }
+                        },
+                        userState = userState,
+                    )
+                } else {
+                    // Handle case where no thread is selected
+                    // Navigate back or show error
+                    LaunchedEffect(Unit) {
+                        navController.popBackStack()
                     }
                 }
-            )
-        }
-
-        composable("mainfeed"){
-            MainFeedPage(
-                onNavigateToPostPage = { navController.navigate("post") },
-                onNavigateToMarketPage = { navController.navigate("market") },
-                onNavigateToProfilePage = { navController.navigate("profile") },
-                onNavigateToSearchPage = { navController.navigate("search") },
-                onNavigateToThreadPage = {
-                    navController.navigate("thread/feed")
-                }
-            )
-        }
-
-        composable("post"){
-            PostPage(
-                userState = userState,
-                onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
-                onNavigateToMarketPage = { navController.navigate("market") },
-                onNavigateToProfilePage = { navController.navigate("profile") },
-                onNavigateToSearchPage = { navController.navigate("search") }
-            )
-        }
-
-        composable("market"){
-            MarketPage(
-                onNavigateToPostPage = { navController.navigate("post") },
-                onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
-                onNavigateToProfilePage = { navController.navigate("profile") },
-                onNavigateToSearchPage = { navController.navigate("search") }
-            )
-        }
-
-        composable("profile"){
-            ProfilePage(
-                onNavigateToPostPage = { navController.navigate("post") },
-                onNavigateToMarketPage = { navController.navigate("market") },
-                onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
-                onNavigateToSearchPage = { navController.navigate("search") },
-                onNavigateToMyPosts = { navController.navigate("my_posts")},
-                onNavigateToSettingsPage = {navController.navigate("settings")},
-                onNavigateToSavedStuff = { navController.navigate("saved_stuff")}
-            )
-        }
-
-        composable("search"){
-            SearchPage(
-                onNavigateToPostPage = { navController.navigate("post") },
-                onNavigateToMarketPage = { navController.navigate("market")},
-                onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
-                onNavigateToProfilePage = { navController.navigate("profile") },
-                onClickHub = { hubName -> navController.navigate("hub/${hubName}") }
-            )
-        }
-
-        composable(
-            route = "hub/{hubName}",
-            arguments = listOf(
-                navArgument("hubName") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val hubName = backStackEntry.arguments?.getString("hubName") ?: "School"
-
-            HubPostsPage(
-                hubName = hubName,
-                onExit = { navController.popBackStack() },
-                onClick = { thread ->
-                    ThreadStore.selectedThread = thread
-                    navController.navigate("thread/hub")
-                }
-            )
-        }
-
-        composable("hub_school") {
-            SchoolHubPage(
-                onExit = { navController.navigate("search") },
-                onClick = { thread ->
-                    // Store selected thread temporarily
-                    ThreadStore.selectedThread = thread
-                    navController.navigate("thread/hub_school") // TODO : change
-                }
-            )
-        }
-
-        composable("my_posts") {
-            ProfilePagePosts (
-                userState = userState,
-                onExit = {navController.navigate("profile")},
-                onClick = { thread ->
-                    // Store selected thread temporarily
-                    ThreadStore.selectedThread = thread
-                    navController.navigate("thread/my_posts")
-                }
-            )
-        }
-
-        composable(
-            route = "thread/{source}",
-            arguments = listOf(
-                navArgument("source") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val source = backStackEntry.arguments?.getString("source") ?: "my_posts"
-            val selectedThread = ThreadStore.selectedThread
-            if (selectedThread != null) {
-                ThreadPage(
-                    thread = selectedThread,
-                    onExit = {
-                        when (source) {
-                            "feed" -> navController.popBackStack()
-                            "my_posts" -> navController.popBackStack()
-                            "saved_stuff" -> navController.popBackStack()
-                            "hub_school" -> navController.popBackStack()
-
-                            else -> navController.popBackStack()
-                        }
-                    },
-                    userState = userState,
-                )
-            } else {
-                // Handle case where no thread is selected
-                // Navigate back or show error
-                LaunchedEffect(Unit) {
-                    navController.popBackStack()
-                }
             }
-        }
 
-        composable("settings") {
-            SettingsPage(
-                navController = navController,
-                userViewModel = userViewModel)
-        }
+            composable("settings") {
+                SettingsPage(
+                    navController = navController,
+                    userViewModel = userViewModel)
+            }
 
-        composable("saved_stuff") {
-            SavedThreadsPage(
-                userState = userState,
-                onExit = { navController.navigate("profile") },
-                onClick = { thread ->
-                    ThreadStore.selectedThread = thread
-                    navController.navigate("thread/saved_stuff")
-                }
-            )
+            composable("saved_stuff") {
+                SavedThreadsPage(
+                    userState = userState,
+                    onExit = { navController.navigate("profile") },
+                    onClick = { thread ->
+                        ThreadStore.selectedThread = thread
+                        navController.navigate("thread/saved_stuff")
+                    }
+                )
+            }
         }
     }
 

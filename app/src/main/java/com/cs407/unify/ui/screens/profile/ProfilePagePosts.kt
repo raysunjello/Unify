@@ -74,7 +74,7 @@ fun ProfilePagePosts(
     Surface(
         modifier = Modifier
             .fillMaxSize(),
-        color = Color.White
+        color = Color.Transparent
     ) {
         Box(
             modifier = Modifier
@@ -101,8 +101,7 @@ fun ProfilePagePosts(
                     threads.isEmpty() -> {
                         Text(
                             text = "No Posts",
-                            modifier = Modifier.padding(24.dp),
-                            color = Color.Gray
+                            modifier = Modifier.padding(24.dp)
                         )
                     }
                     else -> {
