@@ -364,23 +364,7 @@ fun PostPage(
 
             //hub field with dropdown
 //            Box(modifier = Modifier.fillMaxWidth()) {
-//                Button(
-//                    onClick = { showHubDropdown = true },
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .height(56.dp),
-//                    enabled = true,
-//                    shape = RoundedCornerShape(12.dp),
-//                    colors = ButtonDefaults.buttonColors(
-//                        containerColor = Color.Transparent,
-//                        contentColor = Color.White
-//                    ),
-//                    border = BorderStroke(2.dp, Color.White),
-//                    elevation = TODO(),
-//                    contentPadding = TODO(),
-//                    interactionSource = TODO(),
-//                    content = TODO()
-//                )
+//
 //
 ////                TextField(
 ////                    value = hub,
