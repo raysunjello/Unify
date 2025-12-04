@@ -22,6 +22,7 @@ import com.cs407.unify.ViewModels.UserViewModel
 import com.cs407.unify.data.AppDatabase
 import com.cs407.unify.ui.screens.HomePage.SearchPage
 import com.cs407.unify.ui.screens.login.LoginPage
+import com.cs407.unify.ui.screens.login.ForgotPasswordPage
 import com.cs407.unify.ui.screens.MainFeedPage
 import com.cs407.unify.ui.screens.MarketPage
 import com.cs407.unify.ui.screens.PostPage
@@ -82,7 +83,14 @@ fun AppNavigation() {
             LoginPage(
                 userViewModel = userViewModel,
                 onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
-                onNavigateToRegistrationPage = { uid -> navController.navigate("register/$uid") }
+                onNavigateToRegistrationPage = { uid -> navController.navigate("register/$uid") },
+                onNavigateToForgotPassword = { navController.navigate("forgot_password") }
+            )
+        }
+
+        composable("forgot_password") {
+            ForgotPasswordPage(
+                onNavigateBack = { navController.popBackStack() },
             )
         }
 

@@ -36,7 +36,8 @@ import com.cs407.unify.data.UserProfile
 fun LoginPage(
     userViewModel: UserViewModel,
     onNavigateToMainFeedPage: () -> Unit,
-    onNavigateToRegistrationPage: (String) -> Unit
+    onNavigateToRegistrationPage: (String) -> Unit,
+    onNavigateToForgotPassword: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -122,7 +123,7 @@ fun LoginPage(
             text = "Forgot Password?",
             color = Color.Black,
             modifier = Modifier.clickable{
-                FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+                onNavigateToForgotPassword()
             }
         )
 
@@ -185,7 +186,8 @@ fun LoginPage(
                             .addOnSuccessListener { document ->
                                 val profile = document.toObject(UserProfile::class.java)
 
-                                if (profile != null) {
+                                if (profile != null && profile.username.isNotBlank()) {
+                                    // Complete profile exists, go to main feed
                                     userViewModel.setUser(
                                         UserState(
                                             uid = profile.uid,
@@ -195,7 +197,9 @@ fun LoginPage(
                                             isLoggedIn = true
                                         )
                                     )
+                                    onNavigateToMainFeedPage()
                                 } else {
+                                    // Profile doesn't exist or is incomplete, go to registration
                                     userViewModel.setUser(
                                         UserState(
                                             uid = uid,
@@ -203,11 +207,11 @@ fun LoginPage(
                                             isLoggedIn = true
                                         )
                                     )
+                                    onNavigateToRegistrationPage(uid)
                                 }
-
-                                onNavigateToMainFeedPage()
                             }
                             .addOnFailureListener {
+                                // If Firestore check fails, assume new user and go to registration
                                 userViewModel.setUser(
                                     UserState(
                                         uid = uid,
@@ -215,7 +219,7 @@ fun LoginPage(
                                         isLoggedIn = true
                                     )
                                 )
-                                onNavigateToMainFeedPage()
+                                onNavigateToRegistrationPage(uid)
                             }
                     },
                     onNewUser = { uid ->
@@ -235,7 +239,14 @@ fun LoginPage(
                     },
                     onFailure = { msg ->
                         isLoading = false
-                        error = msg
+                        // Check if it's an authentication error and show generic message
+                        error = if (msg.contains("password", ignoreCase = true) ||
+                            msg.contains("email", ignoreCase = true) ||
+                            msg.contains("credentials", ignoreCase = true)) {
+                            "Wrong username or password"
+                        } else {
+                            msg
+                        }
                     }
                 )
             },
