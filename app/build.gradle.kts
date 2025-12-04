@@ -74,5 +74,6 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
 
     implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
 
 }

@@ -101,6 +101,8 @@ fun ProfilePage(
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(8.dp)
+                .padding(top = 40.dp)
+
         ) {
             Icon(
                 imageVector = Icons.Default.Settings,
