@@ -122,8 +122,9 @@ fun HubPostsPage(
 
                 Text(
                     text = hubName.uppercase(),
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(8.dp)
                 )
 
                 OutlinedTextField(

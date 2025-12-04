@@ -316,7 +316,7 @@ fun PostPage(
 
             var expanded by remember { mutableStateOf(false) }
             var newHub by remember { mutableStateOf(false) }
-            val mainHubs = listOf("SCHOOL", "HOUSING", "TRANSPORTATION", "CITY", "SOCIAL", "MISC", "( ADD NEW )")
+            val mainHubs = listOf("SCHOOL", "HOUSING", "TRANSPORT", "CITY", "SOCIAL", "MISC", "( ADD NEW )")
             var selected by remember { mutableStateOf("") }
             var text by remember { mutableStateOf("") }
 
