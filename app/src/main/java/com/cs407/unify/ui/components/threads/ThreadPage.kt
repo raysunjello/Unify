@@ -94,16 +94,39 @@ fun ThreadPage(
                 // Save/Unsave button
                 IconButton(
                     onClick = {
-                        ThreadStore.toggleSaved(thread.id)
-                        isSaved = !isSaved
+                        val db = FirebaseFirestore.getInstance()
+                        val userSavedRef = db.collection("users")
+                            .document(userState.uid)
+                            .collection("savedPosts")
+                            .document(thread.id)
 
-                        Toast.makeText(
-                            context,
-                            if (isSaved) "Post saved!" else "Post unsaved",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        if (isSaved) {
+                            // Unsave
+                            userSavedRef.delete()
+                                .addOnSuccessListener {
+                                    ThreadStore.savedThreadIds.remove(thread.id)
+                                    isSaved = false
+                                    Toast.makeText(context, "Post unsaved", Toast.LENGTH_SHORT).show()
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(context, "Failed to unsave: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
+                        } else {
+                            // Save
+                            userSavedRef.set(mapOf(
+                                "postId" to thread.id,
+                                "savedAt" to System.currentTimeMillis()
+                            ))
+                                .addOnSuccessListener {
+                                    ThreadStore.savedThreadIds.add(thread.id)
+                                    isSaved = true
+                                    Toast.makeText(context, "Post saved!", Toast.LENGTH_SHORT).show()
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(context, "Failed to save: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
+                        }
                     }
-
                 ) {
                     Icon(
                         imageVector = if (isSaved) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
