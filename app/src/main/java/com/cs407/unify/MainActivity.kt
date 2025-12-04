@@ -108,7 +108,10 @@ fun AppNavigation() {
                 onNavigateToPostPage = { navController.navigate("post") },
                 onNavigateToMarketPage = { navController.navigate("market") },
                 onNavigateToProfilePage = { navController.navigate("profile") },
-                onNavigateToSearchPage = { navController.navigate("search") }
+                onNavigateToSearchPage = { navController.navigate("search") },
+                onNavigateToThreadPage = {
+                    navController.navigate("thread/feed")
+                }
             )
         }
 
@@ -177,9 +180,10 @@ fun AppNavigation() {
                     thread = selectedThread,
                     onExit = {
                         when (source) {
-                            "saved_stuff" -> navController.navigate("saved_stuff")
-                            "my_posts" -> navController.navigate("my_posts")
-                            else -> navController.navigate("my_posts")
+                            "feed" -> navController.popBackStack()
+                            "my_posts" -> navController.popBackStack()
+                            "saved_stuff" -> navController.popBackStack()
+                            else -> navController.popBackStack()
                         }
                     },
                     userState = userState,
@@ -188,7 +192,7 @@ fun AppNavigation() {
                 // Handle case where no thread is selected
                 // Navigate back or show error
                 LaunchedEffect(Unit) {
-                    navController.navigate("my_posts")
+                    navController.popBackStack()
                 }
             }
         }
