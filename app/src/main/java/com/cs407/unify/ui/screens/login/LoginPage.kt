@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -31,6 +32,14 @@ import com.cs407.unify.auth.signIn
 import com.google.firebase.firestore.FirebaseFirestore
 import com.cs407.unify.data.UserState
 import com.cs407.unify.data.UserProfile
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import android.app.Activity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.GoogleAuthProvider
 
 @Composable
 fun LoginPage(
@@ -43,6 +52,88 @@ fun LoginPage(
     var password by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
     var isLoading by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    val auth = FirebaseAuth.getInstance()
+
+    val googleSignInClient = remember {
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(context.getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+        GoogleSignIn.getClient(context, gso)
+    }
+
+    val googleSignInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+            try {
+                val account = task.getResult(ApiException::class.java)
+                val idToken = account.idToken
+
+                if (idToken != null) {
+                    isLoading = true
+                    error = null
+
+                    val credential = GoogleAuthProvider.getCredential(idToken, null)
+                    auth.signInWithCredential(credential)
+                        .addOnSuccessListener { authResult ->
+                            val firebaseUser = authResult.user
+                            if (firebaseUser == null) {
+                                isLoading = false
+                                error = "Google sign-in failed: user is null."
+                                return@addOnSuccessListener
+                            }
+
+                            val uid = firebaseUser.uid
+                            val emailFromAuth = firebaseUser.email ?: ""
+
+                            val db = FirebaseFirestore.getInstance()
+                            db.collection("users")
+                                .document(uid)
+                                .get()
+                                .addOnSuccessListener { document ->
+                                    val profile = document.toObject(UserProfile::class.java)
+
+                                    if (profile != null) {
+                                        userViewModel.setUser(
+                                            UserState(
+                                                uid = profile.uid,
+                                                email = profile.email,
+                                                username = profile.username,
+                                                university = profile.university,
+                                                isLoggedIn = true
+                                            )
+                                        )
+                                        isLoading = false
+                                        onNavigateToMainFeedPage()
+                                    } else {
+                                        userViewModel.setUser(
+                                            UserState(
+                                                uid = uid,
+                                                email = emailFromAuth,
+                                                isLoggedIn = true
+                                            )
+                                        )
+                                        isLoading = false
+                                        onNavigateToRegistrationPage(uid)
+                                    }
+                                }
+                        }
+                        .addOnFailureListener { e ->
+                            isLoading = false
+                            error = e.message ?: "Google sign-in failed."
+                        }
+                } else {
+                    error = "Google sign-in failed: missing ID token."
+                }
+            } catch (e: ApiException) {
+                error = "Google sign-in failed: ${e.message}"
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -257,6 +348,29 @@ fun LoginPage(
                 fontSize = 25.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 2.sp
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedButton(
+            onClick = {
+                if (!isLoading) {
+                    error = null
+                    val signInIntent = googleSignInClient.signInIntent
+                    googleSignInLauncher.launch(signInIntent)
+                }
+            },
+            enabled = !isLoading,
+            modifier = Modifier
+                .width(250.dp)
+                .height(48.dp),
+            shape = RoundedCornerShape(24.dp),
+        ) {
+            Text(
+                text = "Continue with Google",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
             )
         }
     }

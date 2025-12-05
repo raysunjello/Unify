@@ -12,14 +12,16 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -53,6 +55,8 @@ fun PostPage(
     onNavigateToProfilePage: () -> Unit,
     onNavigateToSearchPage: () -> Unit
 ) {
+    var isMarketMode by remember { mutableStateOf(false) }
+
     var postTitle by remember { mutableStateOf("") }
     var hub by remember { mutableStateOf("") }
     var body by remember { mutableStateOf("") }
@@ -60,35 +64,14 @@ fun PostPage(
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var showImageSourceDialog by remember { mutableStateOf(false) }
     var isUploading by remember { mutableStateOf(false) }
-    var showHubDropdown by remember { mutableStateOf(false) }
-    var hubSuggestions by remember { mutableStateOf<List<String>>(emptyList()) } // TODO : access hubs
+
+    // Market-specific fields
+    var price by remember { mutableStateOf("") }
+    var contactInfo by remember { mutableStateOf("") }
+    var category by remember { mutableStateOf("") }
 
     val context = LocalContext.current
     val db = FirebaseFirestore.getInstance()
-
-    // Fetch hub suggestions based on user input
-    LaunchedEffect(hub) {
-        if (hub.isNotEmpty()) {
-            db.collection("hubs")
-                .orderBy("nameLowercase")
-                .startAt(hub.lowercase())
-                .endAt(hub.lowercase() + "\uf8ff")
-                .get()
-                .addOnSuccessListener { snapshot ->
-                    hubSuggestions = snapshot.documents.mapNotNull { doc ->
-                        doc.getString("name")
-                    }
-                    showHubDropdown = hubSuggestions.isNotEmpty()
-                }
-                .addOnFailureListener {
-                    hubSuggestions = emptyList()
-                    showHubDropdown = false
-                }
-        } else {
-            hubSuggestions = emptyList()
-            showHubDropdown = false
-        }
-    }
 
     // Create a temporary file for camera capture
     val tempImageFile = remember {
@@ -138,7 +121,7 @@ fun PostPage(
         }
     }
 
-    // Gallery permission launcher (for Android 13+)
+    // Gallery permission launcher
     val galleryPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -156,12 +139,10 @@ fun PostPage(
             val bitmap = BitmapFactory.decodeStream(inputStream)
             inputStream?.close()
 
-            // Compress bitmap to reduce size (max 1MB recommended for Firestore)
             val outputStream = ByteArrayOutputStream()
             var quality = 80
             bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
 
-            // If still too large, reduce quality further
             while (outputStream.size() > 1024 * 1024 && quality > 20) {
                 outputStream.reset()
                 quality -= 10
@@ -186,7 +167,6 @@ fun PostPage(
                 TextButton(
                     onClick = {
                         showImageSourceDialog = false
-                        // Check camera permission
                         when (PackageManager.PERMISSION_GRANTED) {
                             ContextCompat.checkSelfPermission(
                                 context,
@@ -233,11 +213,47 @@ fun PostPage(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Spacer(modifier = Modifier.height(24.dp))
+
+            // Mode toggle button
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = if (isMarketMode) "Market Post" else "Regular Post",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+
+                IconButton(
+                    onClick = {
+                        isMarketMode = !isMarketMode
+                        // Clear mode-specific fields when switching
+                        if (isMarketMode) {
+                            hub = ""
+                        } else {
+                            category = ""
+                            price = ""
+                            contactInfo = ""
+                        }
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Refresh,
+                        contentDescription = "Switch Mode",
+                        tint = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+            }
 
             // Display selected image or default logo
             if (imageUri != null) {
@@ -263,7 +279,7 @@ fun PostPage(
                 )
             }
 
-            //post title field
+            // Post title field
             TextField(
                 value = postTitle,
                 onValueChange = { postTitle = it },
@@ -288,13 +304,14 @@ fun PostPage(
                 shape = RoundedCornerShape(12.dp),
                 singleLine = true
             )
-            // body field
+
+            // Body field
             TextField(
                 value = body,
                 onValueChange = { body = it },
                 placeholder = {
                     Text(
-                        text = "Body...",
+                        text = if (isMarketMode) "Description..." else "Body...",
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
                 },
@@ -314,86 +331,186 @@ fun PostPage(
                 singleLine = true
             )
 
-            var expanded by remember { mutableStateOf(false) }
-            var newHub by remember { mutableStateOf(false) }
-            val mainHubs = listOf("SCHOOL", "HOUSING", "TRANSPORT", "CITY", "SOCIAL", "MISC", "( ADD NEW )")
-            var selected by remember { mutableStateOf("") }
-            var text by remember { mutableStateOf("") }
+            // Conditional dropdown based on mode
+            if (!isMarketMode) {
+                // Regular Post - Hub Dropdown
+                var expanded by remember { mutableStateOf(false) }
+                var newHub by remember { mutableStateOf(false) }
+                val mainHubs = listOf("SCHOOL", "HOUSING", "TRANSPORT", "CITY", "SOCIAL", "MISC", "( ADD NEW )")
+                var selected by remember { mutableStateOf("") }
+                var text by remember { mutableStateOf("") }
 
-            Button(
-                onClick = { expanded = true },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = Color.White
-                ),
-                border = BorderStroke(2.dp, Color.White),
-                elevation = null,
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                interactionSource = remember { MutableInteractionSource() }
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                Button(
+                    onClick = { expanded = true },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = Color.White
+                    ),
+                    border = BorderStroke(2.dp, Color.White),
+                    elevation = null,
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    interactionSource = remember { MutableInteractionSource() }
                 ) {
-                    Text(
-                        text = selected.ifEmpty { "Select Hub" }
-                    )
-                    Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = selected.ifEmpty { "Select Hub" })
+                        Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                    }
                 }
-            }
 
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                mainHubs.forEach { option ->
-                    DropdownMenuItem(
-                        text = { Text(option) },
-                        onClick = {
-                            selected = option
-                            hub = option
-                            expanded = false
-                            if (option == "( ADD NEW )") {
-                                newHub = true
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    mainHubs.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(option) },
+                            onClick = {
+                                selected = option
+                                hub = option
+                                expanded = false
+                                if (option == "( ADD NEW )") {
+                                    newHub = true
+                                }
+                            }
+                        )
+                    }
+                }
+
+                if (newHub) {
+                    AlertDialog(
+                        onDismissRequest = { newHub = false },
+                        title = { Text("Enter Text") },
+                        text = {
+                            TextField(
+                                value = text,
+                                onValueChange = { text = it },
+                                placeholder = { Text("New Hub...") }
+                            )
+                        },
+                        confirmButton = {
+                            Button(onClick = {
+                                newHub = false
+                                selected = text
+                                hub = text
+                            }) {
+                                Text("OK")
+                            }
+                        },
+                        dismissButton = {
+                            Button(onClick = {
+                                newHub = false
+                                selected = ""
+                            }) {
+                                Text("Cancel")
                             }
                         }
                     )
                 }
-            }
+            } else {
+                // Market Post - Category Dropdown
+                var expanded by remember { mutableStateOf(false) }
+                val marketCategories = listOf("Tickets", "Furniture", "Textbooks", "Notes", "Other Stuff")
+                var selected by remember { mutableStateOf("") }
 
-            if (newHub) {
-                AlertDialog(
-                    onDismissRequest = { newHub = false },
-                    title = { Text("Enter Text") },
-                    text = {
-                        TextField(
-                            value = text,
-                            onValueChange = { text = it },
-                            placeholder = { Text("New Hub...") }
+                Button(
+                    onClick = { expanded = true },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = Color.White
+                    ),
+                    border = BorderStroke(2.dp, Color.White),
+                    elevation = null,
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    interactionSource = remember { MutableInteractionSource() }
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = selected.ifEmpty { "Select Category" })
+                        Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                    }
+                }
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    marketCategories.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(option) },
+                            onClick = {
+                                selected = option
+                                category = option
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+
+                // Price field (Market only)
+                TextField(
+                    value = price,
+                    onValueChange = { price = it },
+                    placeholder = {
+                        Text(
+                            text = "Price...",
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                         )
                     },
-                    confirmButton = {
-                        Button(onClick = {
-                            newHub = false
-                            selected = text // update field
-                            hub = text // update thread_hub : add to db
-                        }) {
-                            Text("OK")
-                        }
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                        disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true
+                )
+
+                // Contact Info field (Market only)
+                TextField(
+                    value = contactInfo,
+                    onValueChange = { contactInfo = it },
+                    placeholder = {
+                        Text(
+                            text = "Contact Info (Email/Phone)...",
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
                     },
-                    dismissButton = {
-                        Button(onClick = {
-                            newHub = false
-                            selected = ""
-                        }) {
-                            Text("Cancel")
-                        }
-                    }
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                        disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true
                 )
             }
 
@@ -439,7 +556,7 @@ fun PostPage(
                 }
             }
 
-            //post anonymous toggle
+            // Post anonymous toggle
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -459,13 +576,32 @@ fun PostPage(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            //POST button
+            // POST button
             Button(
                 onClick = {
-                    if (postTitle.isBlank() || body.isBlank() || hub.isBlank()) {
+                    // Validation
+                    if (postTitle.isBlank() || body.isBlank()) {
                         Toast.makeText(
                             context,
-                            "Please fill all fields",
+                            "Please fill title and description",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@Button
+                    }
+
+                    if (!isMarketMode && hub.isBlank()) {
+                        Toast.makeText(
+                            context,
+                            "Please select a hub",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@Button
+                    }
+
+                    if (isMarketMode && (category.isBlank() || price.isBlank() || contactInfo.isBlank())) {
+                        Toast.makeText(
+                            context,
+                            "Please fill all market fields",
                             Toast.LENGTH_SHORT
                         ).show()
                         return@Button
@@ -497,66 +633,67 @@ fun PostPage(
                         return@Button
                     }
 
-                    // Check if hub exists, if not create it
-                    db.collection("hubs")
-                        .whereEqualTo("nameLowercase", hub.trim().lowercase())
-                        .get()
-                        .addOnSuccessListener { hubSnapshot ->
-                            if (hubSnapshot.isEmpty) {
-                                // Hub doesn't exist, create it
-                                val newHub = hashMapOf(
-                                    "name" to hub.trim(),
-                                    "nameLowercase" to hub.trim().lowercase(),
-                                    "createdAt" to System.currentTimeMillis()
-                                )
-                                db.collection("hubs").add(newHub)
+                    // Handle hub creation for regular posts
+                    if (!isMarketMode) {
+                        db.collection("hubs")
+                            .whereEqualTo("nameLowercase", hub.trim().lowercase())
+                            .get()
+                            .addOnSuccessListener { hubSnapshot ->
+                                if (hubSnapshot.isEmpty) {
+                                    val newHub = hashMapOf(
+                                        "name" to hub.trim(),
+                                        "nameLowercase" to hub.trim().lowercase(),
+                                        "createdAt" to System.currentTimeMillis()
+                                    )
+                                    db.collection("hubs").add(newHub)
+                                }
                             }
+                    }
 
-                            // Proceed with creating the post
-                            val postsCollection = db.collection("posts")
-                            val docRef = postsCollection.document()
+                    // Create unified Post (works for both regular and market posts)
+                    val postsCollection = db.collection("posts")
+                    val docRef = postsCollection.document()
 
-                            val post = Post(
-                                id = docRef.id,
-                                title = postTitle,
-                                body = body,
-                                hub = hub.trim(),
-                                isAnonymous = postAnon,
-                                authorUid = userState.uid,
-                                authorUsername = if (postAnon) null else userState.username,
-                                authorUniversity = if (postAnon) null else userState.university,
-                                createdAt = System.currentTimeMillis(),
-                                imageBase64 = imageBase64
-                            )
+                    val post = Post(
+                        id = docRef.id,
+                        title = postTitle,
+                        body = body,
+                        hub = if (isMarketMode) category else hub.trim(),
+                        isAnonymous = postAnon,
+                        authorUid = userState.uid,
+                        authorUsername = if (postAnon) null else userState.username,
+                        authorUniversity = if (postAnon) null else userState.university,
+                        createdAt = System.currentTimeMillis(),
+                        imageBase64 = imageBase64,
+                        isMarketPost = isMarketMode,
+                        price = if (isMarketMode) price else null,
+                        contactInfo = if (isMarketMode) contactInfo else null
+                    )
 
-                            docRef.set(post)
-                                .addOnSuccessListener {
-                                    isUploading = false
-                                    postTitle = ""
-                                    body = ""
-                                    hub = ""
-                                    imageUri = null
-                                    Toast.makeText(context, "Post uploaded!", Toast.LENGTH_SHORT).show()
-                                }
-                                .addOnFailureListener { e ->
-                                    isUploading = false
-                                    Toast.makeText(
-                                        context,
-                                        "Upload failed: ${e.message}",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
+                    docRef.set(post)
+                        .addOnSuccessListener {
+                            isUploading = false
+                            postTitle = ""
+                            body = ""
+                            hub = ""
+                            category = ""
+                            price = ""
+                            contactInfo = ""
+                            imageUri = null
+                            Toast.makeText(
+                                context,
+                                if (isMarketMode) "Market post uploaded!" else "Post uploaded!",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                         .addOnFailureListener { e ->
                             isUploading = false
                             Toast.makeText(
                                 context,
-                                "Failed to check hub: ${e.message}",
+                                "Upload failed: ${e.message}",
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
-
-                    selected = ""
                 },
                 enabled = !isUploading,
                 modifier = Modifier
@@ -572,6 +709,8 @@ fun PostPage(
                     letterSpacing = 2.sp
                 )
             }
+
+            Spacer(modifier = Modifier.height(80.dp)) // Extra space for bottom nav
         }
 
         UnifyBottomBar(

@@ -251,6 +251,29 @@ fun ThreadPage(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
+            // Display market-specific info if it's a market post
+            if (thread.isMarketPost) {
+                thread.price?.let { price ->
+                    Text(
+                        text = "Price: $price",
+                        fontSize = 18.sp,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                    )
+                }
+
+                thread.contactInfo?.let { contact ->
+                    Text(
+                        text = "Contact: $contact",
+                        fontSize = 16.sp,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                    )
+                }
+            }
+
             // Display image if exists
             bitmap?.let {
                 Spacer(modifier = Modifier.height(8.dp))
