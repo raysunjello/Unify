@@ -71,10 +71,7 @@ fun HubPostsPage(
                                 title = it.title,
                                 body = it.body,
                                 hub = it.hub,
-                                imageBase64 = it.imageBase64,
-                                isMarketPost = it.isMarketPost,
-                                price = it.price,
-                                contactInfo = it.contactInfo
+                                imageBase64 = it.imageBase64
                             )
                         } else null
                     }
@@ -125,8 +122,9 @@ fun HubPostsPage(
 
                 Text(
                     text = hubName.uppercase(),
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(8.dp)
                 )
 
                 OutlinedTextField(

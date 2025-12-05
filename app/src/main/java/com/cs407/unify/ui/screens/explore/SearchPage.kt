@@ -1,5 +1,6 @@
 package com.cs407.unify.ui.screens.explore
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -8,6 +9,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
@@ -60,7 +63,7 @@ fun SearchPage(
 
     val db = FirebaseFirestore.getInstance()
 
-    val defaultHubsOrder = listOf("School", "Housing", "Transportation", "City", "Social", "Misc")
+    val defaultHubsOrder = listOf("School", "Housing", "Transport", "City", "Social", "Misc")
 
     // Load all hubs from database
     LaunchedEffect(Unit) {
@@ -147,18 +150,23 @@ fun SearchPage(
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
                             items(filteredHubs) { hubName ->
-                                ElevatedCard(
+                                Button(
                                     modifier = Modifier
+                                        .padding(8.dp)
                                         .fillMaxWidth()
-                                        .wrapContentHeight()
-                                        .padding(16.dp)
+                                        .height(100.dp)
                                         .clickable { onClickHub(hubName) },
-                                    shape = MaterialTheme.shapes.extraLarge,
-                                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color.Transparent,
+                                        contentColor = Color.White
+                                    ),
+                                    border = BorderStroke(2.dp, Color.White),
+                                    onClick = { onClickHub(hubName) }
                                 ) {
                                     Text(
                                         text = hubName.uppercase(),
-                                        style = MaterialTheme.typography.titleLarge,
+                                        style = MaterialTheme.typography.headlineLarge,
                                         fontWeight = FontWeight.Bold,
                                         modifier = Modifier
                                             .padding(25.dp)
