@@ -15,21 +15,23 @@ data class Thread(
     val body: String,
     val hub: String,
     val comments: MutableList<Comment> = mutableListOf(),
-    val imageBase64: String? = null
+    val imageBase64: String? = null,
+
+    // Market-specific fields (nullable for regular posts)
+    val isMarketPost: Boolean = false,
+    val price: String? = null,
+    val contactInfo: String? = null
 ) : Serializable
 
 object ThreadStore {
     val threads: HashMap<String, Thread> = hashMapOf()
     var selectedThread: Thread? = null
-    val savedThreadIds: MutableSet<String> = mutableSetOf() // Track saved thread IDs
+    val savedThreadIds: MutableSet<String> = mutableSetOf()
 
-
-    // Helper function to check if a thread is saved
     fun isThreadSaved(threadId: String): Boolean {
         return savedThreadIds.contains(threadId)
     }
 
-    // Helper function to toggle saved status
     fun toggleSaved(threadId: String) {
         if (savedThreadIds.contains(threadId)) {
             savedThreadIds.remove(threadId)
@@ -38,12 +40,10 @@ object ThreadStore {
         }
     }
 
-    // Helper function to get saved threads
     fun getSavedThreads(): List<Thread> {
         return threads.filter { savedThreadIds.contains(it.key) }.map { it.value }
     }
 
-    // Helper function to add a comment to a thread
     fun addComment(threadId: String, commentText: String) {
         threads[threadId]?.comments?.add(Comment(text = commentText))
     }

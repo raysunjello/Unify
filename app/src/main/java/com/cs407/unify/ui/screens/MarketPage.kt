@@ -1,4 +1,5 @@
 package com.cs407.unify.ui.screens
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,17 +26,19 @@ fun PreviewMarketPage() {
         onNavigateToPostPage = {},
         onNavigateToMainFeedPage = {},
         onNavigateToProfilePage = {},
-        onNavigateToSearchPage = {}
+        onNavigateToSearchPage = {},
+        onNavigateToMarketCategory = {}
     )
 }
+
 @Composable
 fun MarketPage(
     onNavigateToPostPage: () -> Unit,
     onNavigateToMainFeedPage: () -> Unit,
     onNavigateToProfilePage: () -> Unit,
-    onNavigateToSearchPage: () -> Unit
+    onNavigateToSearchPage: () -> Unit,
+    onNavigateToMarketCategory: (String) -> Unit = {}
 ) {
-    // wrapped in box in order for current bottomnavbar implementation to work
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -59,7 +62,7 @@ fun MarketPage(
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                //cart icon
+                //cart icon (placeholder for future feature)
                 Icon(
                     imageVector = Icons.Default.ShoppingCart,
                     contentDescription = "Shopping Cart",
@@ -82,11 +85,11 @@ fun MarketPage(
                     verticalArrangement = Arrangement.spacedBy(30.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    CategoryItem("Tickets")
-                    CategoryItem("Furniture")
-                    CategoryItem("Textbooks")
-                    CategoryItem("Notes")
-                    CategoryItem("Other Stuff")
+                    CategoryItem("Tickets") { onNavigateToMarketCategory("Tickets") }
+                    CategoryItem("Furniture") { onNavigateToMarketCategory("Furniture") }
+                    CategoryItem("Textbooks") { onNavigateToMarketCategory("Textbooks") }
+                    CategoryItem("Notes") { onNavigateToMarketCategory("Notes") }
+                    CategoryItem("Other Stuff") { onNavigateToMarketCategory("Other Stuff") }
                 }
             }
         }
@@ -136,7 +139,7 @@ fun SearchBar(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun CategoryItem(categoryName: String) {
+fun CategoryItem(categoryName: String, onClick: () -> Unit) {
     Text(
         text = categoryName,
         fontSize = 27.sp,
@@ -146,7 +149,7 @@ fun CategoryItem(categoryName: String) {
         textAlign = TextAlign.Center,
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { /* TODO: Navigate to category subpage */ }
+            .clickable { onClick() }
             .padding(vertical = 8.dp)
     )
 }

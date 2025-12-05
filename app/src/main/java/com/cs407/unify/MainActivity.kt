@@ -39,6 +39,7 @@ import com.cs407.unify.ui.screens.profile.ProfilePagePosts
 import com.cs407.unify.ui.screens.login.RegistrationPage
 import com.cs407.unify.ui.screens.profile.SettingsPage
 import androidx.lifecycle.ViewModelProvider
+import com.cs407.unify.ui.screens.MarketCategoryPage
 import com.cs407.unify.ui.screens.explore.CityLifePage
 import com.cs407.unify.ui.screens.explore.HousingHubPage
 import com.cs407.unify.ui.screens.explore.MiscHubPage
@@ -168,7 +169,28 @@ fun AppNavigation() {
                     onNavigateToPostPage = { navController.navigate("post") },
                     onNavigateToMainFeedPage = { navController.navigate("mainfeed") },
                     onNavigateToProfilePage = { navController.navigate("profile") },
-                    onNavigateToSearchPage = { navController.navigate("search") }
+                    onNavigateToSearchPage = { navController.navigate("search") },
+                    onNavigateToMarketCategory = { category ->
+                        navController.navigate("market_category/${category}")
+                    }
+                )
+            }
+
+            composable(
+                route = "market_category/{categoryName}",
+                arguments = listOf(
+                    navArgument("categoryName") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val categoryName = backStackEntry.arguments?.getString("categoryName") ?: "Market"
+
+                MarketCategoryPage(
+                    categoryName = categoryName,
+                    onExit = { navController.popBackStack() },
+                    onClick = { thread ->
+                        ThreadStore.selectedThread = thread
+                        navController.navigate("thread/market_category")
+                    }
                 )
             }
 

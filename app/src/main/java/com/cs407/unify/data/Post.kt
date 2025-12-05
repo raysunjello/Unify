@@ -13,5 +13,10 @@ data class Post(
 
     val createdAt: Long = System.currentTimeMillis(),
     val comments: List<Comment> = emptyList(),
-    val imageBase64: String? = null
+    val imageBase64: String? = null,
+
+    // Market-specific fields
+    var isMarketPost: Boolean = false,
+    var price: String? = null,
+    var contactInfo: String? = null
 )

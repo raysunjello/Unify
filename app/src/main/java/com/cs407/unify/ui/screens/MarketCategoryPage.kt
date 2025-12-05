@@ -1,6 +1,5 @@
-package com.cs407.unify.ui.screens.explore
+package com.cs407.unify.ui.screens
 
-import android.R.attr.prompt
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,36 +37,33 @@ import com.cs407.unify.data.Post
 import com.cs407.unify.ui.components.threads.Thread
 import com.cs407.unify.ui.components.threads.ThreadCard
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlin.collections.sorted
 
 @Composable
-fun HubPostsPage(
-    hubName: String,
+fun MarketCategoryPage(
+    categoryName: String,
     onExit: () -> Unit,
     onClick: (Thread) -> Unit
 ) {
-    var hubPosts by remember { mutableStateOf<List<Thread>>(emptyList()) }
+    var marketPosts by remember { mutableStateOf<List<Thread>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
     var prompt by remember { mutableStateOf("") }
     var filteredPosts by remember { mutableStateOf<List<Thread>>(emptyList()) }
 
-
-
     val db = FirebaseFirestore.getInstance()
 
-    LaunchedEffect(hubName) {
-        // Query posts with matching hub (case-insensitive)
+    LaunchedEffect(categoryName) {
         db.collection("posts")
             .get()
             .addOnSuccessListener { snapshot ->
                 val posts = snapshot.documents.mapNotNull { doc ->
                     val post = doc.toObject(Post::class.java)
+
                     post?.let {
-                        // Case-insensitive comparison
-                        if (it.hub.equals(hubName, ignoreCase = true)) {
+                        // Filter for market posts with matching category
+                        if (it.isMarketPost == true && it.hub.equals(categoryName, ignoreCase = true)) {
                             Thread(
-                                id = it.id,
+                                id = it.id.ifBlank { doc.id },
                                 title = it.title,
                                 body = it.body,
                                 hub = it.hub,
@@ -76,10 +72,13 @@ fun HubPostsPage(
                                 price = it.price,
                                 contactInfo = it.contactInfo
                             )
-                        } else null
+                        } else {
+                            null
+                        }
                     }
                 }
-                hubPosts = posts
+
+                marketPosts = posts
                 filteredPosts = posts
                 isLoading = false
             }
@@ -90,11 +89,12 @@ fun HubPostsPage(
 
     LaunchedEffect(prompt) {
         filteredPosts = if (prompt.isBlank()) {
-            hubPosts
+            marketPosts
         } else {
-            hubPosts.filter { post ->
-                post.title.lowercase().startsWith(prompt.lowercase())
-            } // TODO : sorted?
+            marketPosts.filter { post ->
+                post.title.lowercase().contains(prompt.lowercase()) ||
+                        post.body.lowercase().contains(prompt.lowercase())
+            }
         }
     }
 
@@ -122,17 +122,16 @@ fun HubPostsPage(
                     .align(Alignment.TopCenter)
                     .padding(top = 20.dp)
             ) {
-
                 Text(
-                    text = hubName.uppercase(),
+                    text = categoryName.uppercase(),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold
                 )
 
                 OutlinedTextField(
                     value = prompt,
-                    onValueChange = {prompt = it},
-                    placeholder = { Text("Search threads...") },
+                    onValueChange = { prompt = it },
+                    placeholder = { Text("Search $categoryName...") },
                     singleLine = true,
                     colors = TextFieldDefaults.colors(
                         focusedIndicatorColor = Color.Transparent,
@@ -159,9 +158,9 @@ fun HubPostsPage(
                             modifier = Modifier.padding(24.dp)
                         )
                     }
-                    hubPosts.isEmpty() -> {
+                    marketPosts.isEmpty() -> {
                         Text(
-                            text = "No Posts in this hub yet",
+                            text = "No items in this category yet",
                             modifier = Modifier.padding(24.dp)
                         )
                     }
@@ -173,7 +172,6 @@ fun HubPostsPage(
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center
                         )
                     }
-
                     else -> {
                         LazyColumn(
                             modifier = Modifier.padding(all = 20.dp)
