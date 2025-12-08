@@ -15,11 +15,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.cs407.unify.ui.components.UnifyBottomBar
+import androidx.compose.ui.unit.sp
 import com.cs407.unify.ui.components.BottomTab
 
 @Preview(showBackground = true)
@@ -30,7 +29,8 @@ fun PreviewMarketPage() {
         onNavigateToMainFeedPage = {},
         onNavigateToProfilePage = {},
         onNavigateToSearchPage = {},
-        onNavigateToMarketCategory = {}
+        onNavigateToMarketCategory = {},
+        onNavigateToCart = {}
     )
 }
 
@@ -40,7 +40,8 @@ fun MarketPage(
     onNavigateToMainFeedPage: () -> Unit,
     onNavigateToProfilePage: () -> Unit,
     onNavigateToSearchPage: () -> Unit,
-    onNavigateToMarketCategory: (String) -> Unit = {}
+    onNavigateToMarketCategory: (String) -> Unit = {},
+    onNavigateToCart: () -> Unit = {}
 ) {
     val categories = listOf("TICKETS", "FURNITURE", "TEXTBOOKS", "NOTES", "OTHER STUFF")
 
@@ -67,15 +68,17 @@ fun MarketPage(
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                //cart icon (placeholder for future feature)
-                Icon(
-                    imageVector = Icons.Default.ShoppingCart,
-                    contentDescription = "Shopping Cart",
-                    modifier = Modifier
-                        .size(28.dp)
-                        .clickable { /* TODO: Navigate to cart */ },
-                    tint = MaterialTheme.colorScheme.onBackground
-                )
+                //cart icon
+                IconButton(
+                    onClick = { onNavigateToCart() }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ShoppingCart,
+                        contentDescription = "Shopping Cart",
+                        modifier = Modifier.size(28.dp),
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                }
             }
 
             //category list
@@ -112,27 +115,11 @@ fun MarketPage(
                                 text = category.uppercase(),
                                 style = MaterialTheme.typography.headlineLarge,
                                 fontWeight = FontWeight.Bold,
-                                modifier = Modifier
-                                    .padding(25.dp)
-
+                                modifier = Modifier.padding(25.dp)
                             )
                         }
                     }
                 }
-
-
-
-
-//                Column(
-//                    verticalArrangement = Arrangement.spacedBy(30.dp),
-//                    horizontalAlignment = Alignment.CenterHorizontally
-//                ) {
-//                    CategoryItem("Tickets") { onNavigateToMarketCategory("Tickets") }
-//                    CategoryItem("Furniture") { onNavigateToMarketCategory("Furniture") }
-//                    CategoryItem("Textbooks") { onNavigateToMarketCategory("Textbooks") }
-//                    CategoryItem("Notes") { onNavigateToMarketCategory("Notes") }
-//                    CategoryItem("Other Stuff") { onNavigateToMarketCategory("Other Stuff") }
-//                }
             }
         }
 
@@ -177,21 +164,5 @@ fun SearchBar(modifier: Modifier = Modifier) {
         ),
         shape = RoundedCornerShape(25.dp),
         singleLine = true
-    )
-}
-
-@Composable
-fun CategoryItem(categoryName: String, onClick: () -> Unit) {
-    Text(
-        text = categoryName,
-        fontSize = 27.sp,
-        fontWeight = FontWeight.Black,
-        letterSpacing = 1.sp,
-        color = MaterialTheme.colorScheme.onBackground,
-        textAlign = TextAlign.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(vertical = 8.dp)
     )
 }

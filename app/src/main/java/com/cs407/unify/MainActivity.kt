@@ -48,6 +48,7 @@ import com.cs407.unify.ui.screens.explore.HubPostsPage
 import com.cs407.unify.ui.screens.explore.SocialHubPage
 import com.cs407.unify.ui.screens.explore.TransportHubPage
 import com.cs407.unify.ui.screens.profile.SavedThreadsPage
+import com.cs407.unify.ui.screens.profile.CartPage
 import com.cs407.unify.ui.theme.AppTheme
 
 
@@ -172,7 +173,8 @@ fun AppNavigation() {
                     onNavigateToSearchPage = { navController.navigate("search") },
                     onNavigateToMarketCategory = { category ->
                         navController.navigate("market_category/${category}")
-                    }
+                    },
+                    onNavigateToCart = { navController.navigate("cart") }
                 )
             }
 
@@ -190,6 +192,17 @@ fun AppNavigation() {
                     onClick = { thread ->
                         ThreadStore.selectedThread = thread
                         navController.navigate("thread/market_category")
+                    }
+                )
+            }
+
+            composable("cart") {
+                CartPage(
+                    userState = userState,
+                    onExit = { navController.popBackStack() },
+                    onClick = { thread ->
+                        ThreadStore.selectedThread = thread
+                        navController.navigate("thread/cart")
                     }
                 )
             }
@@ -234,89 +247,89 @@ fun AppNavigation() {
                 )
             }
 
-        composable("hub_school") {
-            SchoolHubPage(
-                onExit = { navController.navigate("search") },
-                onClick = { thread ->
-                    // Store selected thread temporarily
-                    ThreadStore.selectedThread = thread
-                    navController.navigate("thread/hub_school") // TODO : change
-                }
-            )
-        }
+            composable("hub_school") {
+                SchoolHubPage(
+                    onExit = { navController.navigate("search") },
+                    onClick = { thread ->
+                        // Store selected thread temporarily
+                        ThreadStore.selectedThread = thread
+                        navController.navigate("thread/hub_school") // TODO : change
+                    }
+                )
+            }
 
-        composable("my_posts") {
-            ProfilePagePosts (
-                userState = userState,
-                onExit = {navController.navigate("profile")},
-                onClick = { thread ->
-                    // Store selected thread temporarily
-                    ThreadStore.selectedThread = thread
-                    navController.navigate("thread/my_posts")
-                }
-            )
-        }
-        composable("hub_housing") {
-            HousingHubPage (
-                onExit = { navController.navigate("search") },
-                onClick = { thread ->
-                    ThreadStore.selectedThread = thread
-                    navController.navigate("thread/hub_housing") // TODO : change
-                }
-            )
-        }
+            composable("my_posts") {
+                ProfilePagePosts (
+                    userState = userState,
+                    onExit = {navController.navigate("profile")},
+                    onClick = { thread ->
+                        // Store selected thread temporarily
+                        ThreadStore.selectedThread = thread
+                        navController.navigate("thread/my_posts")
+                    }
+                )
+            }
+            composable("hub_housing") {
+                HousingHubPage (
+                    onExit = { navController.navigate("search") },
+                    onClick = { thread ->
+                        ThreadStore.selectedThread = thread
+                        navController.navigate("thread/hub_housing") // TODO : change
+                    }
+                )
+            }
 
-        composable("hub_transport") {
-            TransportHubPage (
-                onExit = { navController.navigate("search") },
-                onClick = { thread ->
-                    ThreadStore.selectedThread = thread
-                    navController.navigate("thread/hub_transport")
-                }
-            )
-        }
+            composable("hub_transport") {
+                TransportHubPage (
+                    onExit = { navController.navigate("search") },
+                    onClick = { thread ->
+                        ThreadStore.selectedThread = thread
+                        navController.navigate("thread/hub_transport")
+                    }
+                )
+            }
 
-        composable("hub_city") {
-            CityLifePage (
-                onExit = { navController.navigate("search") },
-                onClick = { thread ->
-                    ThreadStore.selectedThread = thread
-                    navController.navigate("thread/hub_city")
-                }
-            )
-        }
+            composable("hub_city") {
+                CityLifePage (
+                    onExit = { navController.navigate("search") },
+                    onClick = { thread ->
+                        ThreadStore.selectedThread = thread
+                        navController.navigate("thread/hub_city")
+                    }
+                )
+            }
 
-        composable("hub_social") {
-            SocialHubPage (
-                onExit = { navController.navigate("search") },
-                onClick = { thread ->
-                    ThreadStore.selectedThread = thread
-                    navController.navigate("thread/hub_social")
-                }
-            )
-        }
+            composable("hub_social") {
+                SocialHubPage (
+                    onExit = { navController.navigate("search") },
+                    onClick = { thread ->
+                        ThreadStore.selectedThread = thread
+                        navController.navigate("thread/hub_social")
+                    }
+                )
+            }
 
-        composable("hub_misc") {
-            MiscHubPage (
-                onExit = { navController.navigate("search") },
-                onClick = { thread ->
-                    ThreadStore.selectedThread = thread
-                    navController.navigate("thread/hub_misc")
-                }
-            )
-        }
+            composable("hub_misc") {
+                MiscHubPage (
+                    onExit = { navController.navigate("search") },
+                    onClick = { thread ->
+                        ThreadStore.selectedThread = thread
+                        navController.navigate("thread/hub_misc")
+                    }
+                )
+            }
 
-        composable("my_posts") {
-            ProfilePagePosts (
-                userState = userState,
-                onExit = {navController.navigate("profile")},
-                onClick = { thread ->
-                    // Store selected thread temporarily
-                    ThreadStore.selectedThread = thread
-                    navController.navigate("thread/my_posts")
-                }
-            )
-        }
+            composable("my_posts") {
+                ProfilePagePosts (
+                    userState = userState,
+                    onExit = {navController.navigate("profile")},
+                    onClick = { thread ->
+                        // Store selected thread temporarily
+                        ThreadStore.selectedThread = thread
+                        navController.navigate("thread/my_posts")
+                    }
+                )
+            }
 
             composable(
                 route = "thread/{source}",
@@ -334,8 +347,8 @@ fun AppNavigation() {
                                 "feed" -> navController.popBackStack()
                                 "my_posts" -> navController.popBackStack()
                                 "saved_stuff" -> navController.popBackStack()
+                                "cart" -> navController.popBackStack()
                                 "hub_school" -> navController.popBackStack()
-
                                 else -> navController.popBackStack()
                             }
                         },

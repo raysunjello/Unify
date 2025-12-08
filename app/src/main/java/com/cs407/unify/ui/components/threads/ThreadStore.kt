@@ -33,6 +33,7 @@ object ThreadStore {
     val threads: HashMap<String, Thread> = hashMapOf()
     var selectedThread: Thread? = null
     val savedThreadIds: MutableSet<String> = mutableSetOf()
+    val cartThreadIds: MutableSet<String> = mutableSetOf()
 
     fun isThreadSaved(threadId: String): Boolean {
         return savedThreadIds.contains(threadId)
@@ -48,6 +49,22 @@ object ThreadStore {
 
     fun getSavedThreads(): List<Thread> {
         return threads.filter { savedThreadIds.contains(it.key) }.map { it.value }
+    }
+
+    fun isThreadInCart(threadId: String): Boolean {
+        return cartThreadIds.contains(threadId)
+    }
+
+    fun toggleCart(threadId: String) {
+        if (cartThreadIds.contains(threadId)) {
+            cartThreadIds.remove(threadId)
+        } else {
+            cartThreadIds.add(threadId)
+        }
+    }
+
+    fun getCartThreads(): List<Thread> {
+        return threads.filter { cartThreadIds.contains(it.key) }.map { it.value }
     }
 
     fun addComment(threadId: String, commentText: String) {
