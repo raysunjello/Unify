@@ -53,6 +53,7 @@ import java.util.Date
 import java.util.Locale
 import com.cs407.unify.data.Comment as PostComment
 import com.cs407.unify.data.Post
+import androidx.compose.material.icons.filled.Delete
 
 @Composable
 fun ThreadPage(
@@ -71,6 +72,8 @@ fun ThreadPage(
     var postAuthorName by remember { mutableStateOf<String?>(thread.authorUsername) }
     var postAuthorUniversity by remember { mutableStateOf<String?>(thread.authorUniversity) }
     var postIsAnonymous by remember { mutableStateOf(thread.isAnonymous) }
+    var postAuthorUid by remember { mutableStateOf<String?>(thread.authorUid) }
+    val isOwner = postAuthorUid == userState.uid
 
     LaunchedEffect(thread.id) {
         db.collection("posts")
@@ -93,6 +96,7 @@ fun ThreadPage(
                     postIsAnonymous = post.isAnonymous
                     postAuthorName = post.authorUsername
                     postAuthorUniversity = post.authorUniversity
+                    postAuthorUid = post.authorUid
                 }
             }
 
@@ -203,6 +207,38 @@ fun ThreadPage(
                             contentDescription = if (isSaved) "Unsave" else "Save",
                             tint = if (isSaved) Color.Red else Color.Gray,
                             modifier = Modifier.size(28.dp)
+                        )
+                    }
+                }
+
+                if (isOwner) {
+                    IconButton(
+                        onClick = {
+                            db.collection("posts")
+                                .document(thread.id)
+                                .delete()
+                                .addOnSuccessListener {
+                                    ThreadStore.threads.remove(thread.id)
+                                    ThreadStore.savedThreadIds.remove(thread.id)
+                                    ThreadStore.cartThreadIds.remove(thread.id)
+
+                                    Toast.makeText(context, "Post deleted", Toast.LENGTH_SHORT).show()
+                                    onExit()
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(
+                                        context,
+                                        "Failed to delete: ${e.message}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Delete,
+                            contentDescription = "Delete post",
+                            tint = Color.Red,
+                            modifier = Modifier.size(26.dp)
                         )
                     }
                 }
