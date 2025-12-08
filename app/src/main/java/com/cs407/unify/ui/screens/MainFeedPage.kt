@@ -86,7 +86,10 @@ fun MainFeedPage(
                                 title = it.title,
                                 body = it.body,
                                 hub = it.hub,
-                                imageBase64 = it.imageBase64
+                                imageBase64 = it.imageBase64,
+                                isMarketPost = it.isMarketPost,
+                                price = it.price,
+                                contactInfo = it.contactInfo
                             )
                         ThreadStore.threads[thread.id] = thread
                         thread

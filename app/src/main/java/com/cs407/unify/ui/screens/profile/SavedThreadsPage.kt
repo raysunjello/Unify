@@ -81,7 +81,10 @@ fun SavedThreadsPage(
                                     title = it.title,
                                     body = it.body,
                                     hub = it.hub,
-                                    imageBase64 = it.imageBase64
+                                    imageBase64 = it.imageBase64,
+                                    isMarketPost = it.isMarketPost,
+                                    price = it.price,
+                                    contactInfo = it.contactInfo
                                 )
                             }
                         }

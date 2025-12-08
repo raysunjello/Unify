@@ -1,6 +1,10 @@
 package com.cs407.unify.ui.screens
+
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -25,17 +29,21 @@ fun PreviewMarketPage() {
         onNavigateToPostPage = {},
         onNavigateToMainFeedPage = {},
         onNavigateToProfilePage = {},
-        onNavigateToSearchPage = {}
+        onNavigateToSearchPage = {},
+        onNavigateToMarketCategory = {}
     )
 }
+
 @Composable
 fun MarketPage(
     onNavigateToPostPage: () -> Unit,
     onNavigateToMainFeedPage: () -> Unit,
     onNavigateToProfilePage: () -> Unit,
-    onNavigateToSearchPage: () -> Unit
+    onNavigateToSearchPage: () -> Unit,
+    onNavigateToMarketCategory: (String) -> Unit = {}
 ) {
-    // wrapped in box in order for current bottomnavbar implementation to work
+    val categories = listOf("TICKETS", "FURNITURE", "TEXTBOOKS", "NOTES", "OTHER STUFF")
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -48,7 +56,7 @@ fun MarketPage(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 24.dp),
+                    .padding(bottom = 24.dp, top = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -59,7 +67,7 @@ fun MarketPage(
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                //cart icon
+                //cart icon (placeholder for future feature)
                 Icon(
                     imageVector = Icons.Default.ShoppingCart,
                     contentDescription = "Shopping Cart",
@@ -78,16 +86,53 @@ fun MarketPage(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(30.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(12.dp),
+                    contentPadding = PaddingValues(bottom = 80.dp), // Space for bottom nav bar
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    CategoryItem("Tickets")
-                    CategoryItem("Furniture")
-                    CategoryItem("Textbooks")
-                    CategoryItem("Notes")
-                    CategoryItem("Other Stuff")
+                    items(categories) { category ->
+                        Button(
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .fillMaxWidth()
+                                .height(100.dp)
+                                .clickable { onNavigateToMarketCategory(category) },
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Transparent,
+                                contentColor = Color.White
+                            ),
+                            border = BorderStroke(2.dp, Color.White),
+                            onClick = { onNavigateToMarketCategory(category) }
+                        ) {
+                            Text(
+                                text = category.uppercase(),
+                                style = MaterialTheme.typography.headlineLarge,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .padding(25.dp)
+
+                            )
+                        }
+                    }
                 }
+
+
+
+
+//                Column(
+//                    verticalArrangement = Arrangement.spacedBy(30.dp),
+//                    horizontalAlignment = Alignment.CenterHorizontally
+//                ) {
+//                    CategoryItem("Tickets") { onNavigateToMarketCategory("Tickets") }
+//                    CategoryItem("Furniture") { onNavigateToMarketCategory("Furniture") }
+//                    CategoryItem("Textbooks") { onNavigateToMarketCategory("Textbooks") }
+//                    CategoryItem("Notes") { onNavigateToMarketCategory("Notes") }
+//                    CategoryItem("Other Stuff") { onNavigateToMarketCategory("Other Stuff") }
+//                }
             }
         }
 
@@ -136,7 +181,7 @@ fun SearchBar(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun CategoryItem(categoryName: String) {
+fun CategoryItem(categoryName: String, onClick: () -> Unit) {
     Text(
         text = categoryName,
         fontSize = 27.sp,
@@ -146,7 +191,7 @@ fun CategoryItem(categoryName: String) {
         textAlign = TextAlign.Center,
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { /* TODO: Navigate to category subpage */ }
+            .clickable { onClick() }
             .padding(vertical = 8.dp)
     )
 }
