@@ -633,19 +633,23 @@ fun PostPage(
                         return@Button
                     }
 
+                    val rawHub = hub.trim()
+                    val hubKey = rawHub.lowercase()              // for Firestore doc ID / lookups
+                    val hubDisplayName = rawHub.uppercase()
+
                     // Handle hub creation for regular posts
                     if (!isMarketMode) {
-                        db.collection("hubs")
-                            .whereEqualTo("nameLowercase", hub.trim().lowercase())
-                            .get()
-                            .addOnSuccessListener { hubSnapshot ->
-                                if (hubSnapshot.isEmpty) {
+                        val hubDocRef = db.collection("hubs").document(hubKey)
+
+                        hubDocRef.get()
+                            .addOnSuccessListener { snapshot ->
+                                if (!snapshot.exists()) {
                                     val newHub = hashMapOf(
-                                        "name" to hub.trim(),
-                                        "nameLowercase" to hub.trim().lowercase(),
+                                        "name" to hubDisplayName,     // e.g. "SCHOOL"
+                                        "nameLowercase" to hubKey,    // e.g. "school"
                                         "createdAt" to System.currentTimeMillis()
                                     )
-                                    db.collection("hubs").add(newHub)
+                                    hubDocRef.set(newHub)
                                 }
                             }
                     }
@@ -658,7 +662,7 @@ fun PostPage(
                         id = docRef.id,
                         title = postTitle,
                         body = body,
-                        hub = if (isMarketMode) category else hub.trim(),
+                        hub = if (isMarketMode) category else hubDisplayName,
                         isAnonymous = postAnon,
                         authorUid = userState.uid,
                         authorUsername = if (postAnon) null else userState.username,

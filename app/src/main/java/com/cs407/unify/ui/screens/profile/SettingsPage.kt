@@ -47,6 +47,7 @@ fun SettingsPage (
             onClick = { navController.popBackStack()},
             modifier = Modifier
                 .align(Alignment.TopStart)
+                .padding(top = 24.dp)
         ){
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,

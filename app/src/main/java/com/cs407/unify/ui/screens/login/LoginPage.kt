@@ -370,7 +370,8 @@ fun LoginPage(
             Text(
                 text = "Continue with Google",
                 fontSize = 16.sp,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
+                color = Color.White
             )
         }
     }
