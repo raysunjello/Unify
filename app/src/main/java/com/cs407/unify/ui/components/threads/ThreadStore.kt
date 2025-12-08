@@ -16,6 +16,12 @@ data class Thread(
     val hub: String,
     val comments: MutableList<Comment> = mutableListOf(),
     val imageBase64: String? = null,
+    val isAnonymous: Boolean = false,
+    val authorUid: String? = null,
+    val authorUsername: String? = null,
+    val authorUniversity: String? = null,
+    val createdAt: Long = 0L,
+
 
     // Market-specific fields (nullable for regular posts)
     val isMarketPost: Boolean = false,

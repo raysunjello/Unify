@@ -51,6 +51,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import com.cs407.unify.data.Comment as PostComment
+import com.cs407.unify.data.Post
 
 @Composable
 fun ThreadPage(
@@ -65,6 +66,10 @@ fun ThreadPage(
     var isSaved by remember { mutableStateOf(ThreadStore.isThreadSaved(thread.id)) }
     var commentsList by remember { mutableStateOf<List<PostComment>>(emptyList()) }
 
+    var postAuthorName by remember { mutableStateOf<String?>(thread.authorUsername) }
+    var postAuthorUniversity by remember { mutableStateOf<String?>(thread.authorUniversity) }
+    var postIsAnonymous by remember { mutableStateOf(thread.isAnonymous) }
+
     LaunchedEffect(thread.id) {
         db.collection("posts")
             .document(thread.id)
@@ -76,6 +81,19 @@ fun ThreadPage(
                     doc.toObject(PostComment::class.java)?.copy(id = doc.id)
                 }
             }
+
+        db.collection("posts")
+            .document(thread.id)
+            .get()
+            .addOnSuccessListener { doc ->
+                val post = doc.toObject(Post::class.java)
+                if (post != null) {
+                    postIsAnonymous = post.isAnonymous
+                    postAuthorName = post.authorUsername
+                    postAuthorUniversity = post.authorUniversity
+                }
+            }
+
     }
 
     Scaffold(
@@ -250,6 +268,26 @@ fun ThreadPage(
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
+            Text(
+                    text = buildString {
+                        append(
+                            when {
+                                postIsAnonymous -> "Anonymous"
+                                !postAuthorName.isNullOrBlank() -> postAuthorName
+                                else -> "Unknown user"
+                            }
+                        )
+                        postAuthorUniversity?.takeIf { it.isNotBlank() }?.let {
+                            append(" • ")
+                            append(it)
+                        }
+                    },
+            fontSize = 16.sp,
+            color = Color.Gray,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+
 
             // Display market-specific info if it's a market post
             if (thread.isMarketPost) {
