@@ -20,6 +20,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -63,6 +64,7 @@ fun ThreadPage(
 
     var comment by remember { mutableStateOf("") }
     var isSaved by remember { mutableStateOf(ThreadStore.isThreadSaved(thread.id)) }
+    var isInCart by remember { mutableStateOf(ThreadStore.isThreadInCart(thread.id)) }
     var commentsList by remember { mutableStateOf<List<PostComment>>(emptyList()) }
 
     LaunchedEffect(thread.id) {
@@ -84,7 +86,7 @@ fun ThreadPage(
                 modifier = Modifier
                     .fillMaxWidth()
                     .statusBarsPadding()
-                    .padding( end = 16.dp),
+                    .padding(end = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onExit) {
@@ -96,49 +98,95 @@ fun ThreadPage(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                // Save/Unsave button
-                IconButton(
-                    onClick = {
-                        val db = FirebaseFirestore.getInstance()
-                        val userSavedRef = db.collection("users")
-                            .document(userState.uid)
-                            .collection("savedPosts")
-                            .document(thread.id)
+                // Show cart button for market posts, save button for regular posts
+                if (thread.isMarketPost) {
+                    // Cart button for market posts
+                    IconButton(
+                        onClick = {
+                            val userCartRef = db.collection("users")
+                                .document(userState.uid)
+                                .collection("cart")
+                                .document(thread.id)
 
-                        if (isSaved) {
-                            // Unsave
-                            userSavedRef.delete()
-                                .addOnSuccessListener {
-                                    ThreadStore.savedThreadIds.remove(thread.id)
-                                    isSaved = false
-                                    Toast.makeText(context, "Post unsaved", Toast.LENGTH_SHORT).show()
-                                }
-                                .addOnFailureListener { e ->
-                                    Toast.makeText(context, "Failed to unsave: ${e.message}", Toast.LENGTH_SHORT).show()
-                                }
-                        } else {
-                            // Save
-                            userSavedRef.set(mapOf(
-                                "postId" to thread.id,
-                                "savedAt" to System.currentTimeMillis()
-                            ))
-                                .addOnSuccessListener {
-                                    ThreadStore.savedThreadIds.add(thread.id)
-                                    isSaved = true
-                                    Toast.makeText(context, "Post saved!", Toast.LENGTH_SHORT).show()
-                                }
-                                .addOnFailureListener { e ->
-                                    Toast.makeText(context, "Failed to save: ${e.message}", Toast.LENGTH_SHORT).show()
-                                }
+                            if (isInCart) {
+                                // Remove from cart
+                                userCartRef.delete()
+                                    .addOnSuccessListener {
+                                        ThreadStore.cartThreadIds.remove(thread.id)
+                                        isInCart = false
+                                        Toast.makeText(context, "Removed from cart", Toast.LENGTH_SHORT).show()
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Toast.makeText(context, "Failed to remove: ${e.message}", Toast.LENGTH_SHORT).show()
+                                    }
+                            } else {
+                                // Add to cart
+                                userCartRef.set(mapOf(
+                                    "postId" to thread.id,
+                                    "addedAt" to System.currentTimeMillis()
+                                ))
+                                    .addOnSuccessListener {
+                                        ThreadStore.cartThreadIds.add(thread.id)
+                                        isInCart = true
+                                        Toast.makeText(context, "Added to cart!", Toast.LENGTH_SHORT).show()
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Toast.makeText(context, "Failed to add: ${e.message}", Toast.LENGTH_SHORT).show()
+                                    }
+                            }
                         }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.ShoppingCart,
+                            contentDescription = if (isInCart) "Remove from cart" else "Add to cart",
+                            tint = if (isInCart) MaterialTheme.colorScheme.primary else Color.Gray,
+                            modifier = Modifier.size(28.dp)
+                        )
                     }
-                ) {
-                    Icon(
-                        imageVector = if (isSaved) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                        contentDescription = if (isSaved) "Unsave" else "Save",
-                        tint = if (isSaved) Color.Red else Color.Gray,
-                        modifier = Modifier.size(28.dp)
-                    )
+                } else {
+                    // Save button for regular posts
+                    IconButton(
+                        onClick = {
+                            val userSavedRef = db.collection("users")
+                                .document(userState.uid)
+                                .collection("savedPosts")
+                                .document(thread.id)
+
+                            if (isSaved) {
+                                // Unsave
+                                userSavedRef.delete()
+                                    .addOnSuccessListener {
+                                        ThreadStore.savedThreadIds.remove(thread.id)
+                                        isSaved = false
+                                        Toast.makeText(context, "Post unsaved", Toast.LENGTH_SHORT).show()
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Toast.makeText(context, "Failed to unsave: ${e.message}", Toast.LENGTH_SHORT).show()
+                                    }
+                            } else {
+                                // Save
+                                userSavedRef.set(mapOf(
+                                    "postId" to thread.id,
+                                    "savedAt" to System.currentTimeMillis()
+                                ))
+                                    .addOnSuccessListener {
+                                        ThreadStore.savedThreadIds.add(thread.id)
+                                        isSaved = true
+                                        Toast.makeText(context, "Post saved!", Toast.LENGTH_SHORT).show()
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Toast.makeText(context, "Failed to save: ${e.message}", Toast.LENGTH_SHORT).show()
+                                    }
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = if (isSaved) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                            contentDescription = if (isSaved) "Unsave" else "Save",
+                            tint = if (isSaved) Color.Red else Color.Gray,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
                 }
             }
         },
@@ -232,7 +280,6 @@ fun ThreadPage(
         Column(
             modifier = Modifier
                 .padding(innerPadding)
-
                 .verticalScroll(rememberScrollState())
         ) {
             // Thread content
