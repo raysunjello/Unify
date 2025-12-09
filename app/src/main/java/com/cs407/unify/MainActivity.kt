@@ -36,17 +36,12 @@ import com.cs407.unify.ui.screens.profile.ProfilePage
 import com.cs407.unify.ui.components.threads.ThreadPage
 import com.cs407.unify.ui.components.threads.ThreadStore
 import com.cs407.unify.ui.screens.profile.ProfilePagePosts
+import com.cs407.unify.ui.screens.profile.MyHubsPage
 import com.cs407.unify.ui.screens.login.RegistrationPage
 import com.cs407.unify.ui.screens.profile.SettingsPage
 import androidx.lifecycle.ViewModelProvider
 import com.cs407.unify.ui.screens.MarketCategoryPage
-import com.cs407.unify.ui.screens.explore.CityLifePage
-import com.cs407.unify.ui.screens.explore.HousingHubPage
-import com.cs407.unify.ui.screens.explore.MiscHubPage
-import com.cs407.unify.ui.screens.explore.SchoolHubPage
 import com.cs407.unify.ui.screens.explore.HubPostsPage
-import com.cs407.unify.ui.screens.explore.SocialHubPage
-import com.cs407.unify.ui.screens.explore.TransportHubPage
 import com.cs407.unify.ui.screens.profile.SavedThreadsPage
 import com.cs407.unify.ui.screens.profile.CartPage
 import com.cs407.unify.ui.theme.AppTheme
@@ -215,7 +210,8 @@ fun AppNavigation() {
                     onNavigateToSearchPage = { navController.navigate("search") },
                     onNavigateToMyPosts = { navController.navigate("my_posts")},
                     onNavigateToSettingsPage = {navController.navigate("settings")},
-                    onNavigateToSavedStuff = { navController.navigate("saved_stuff")}
+                    onNavigateToSavedStuff = { navController.navigate("saved_stuff")},
+                    onNavigateToMyHubs = { navController.navigate("my_hubs")}
                 )
             }
 
@@ -247,17 +243,6 @@ fun AppNavigation() {
                 )
             }
 
-            composable("hub_school") {
-                SchoolHubPage(
-                    onExit = { navController.navigate("search") },
-                    onClick = { thread ->
-                        // Store selected thread temporarily
-                        ThreadStore.selectedThread = thread
-                        navController.navigate("thread/hub_school") // TODO : change
-                    }
-                )
-            }
-
             composable("my_posts") {
                 ProfilePagePosts (
                     userState = userState,
@@ -269,65 +254,12 @@ fun AppNavigation() {
                     }
                 )
             }
-            composable("hub_housing") {
-                HousingHubPage (
-                    onExit = { navController.navigate("search") },
-                    onClick = { thread ->
-                        ThreadStore.selectedThread = thread
-                        navController.navigate("thread/hub_housing") // TODO : change
-                    }
-                )
-            }
 
-            composable("hub_transport") {
-                TransportHubPage (
-                    onExit = { navController.navigate("search") },
-                    onClick = { thread ->
-                        ThreadStore.selectedThread = thread
-                        navController.navigate("thread/hub_transport")
-                    }
-                )
-            }
-
-            composable("hub_city") {
-                CityLifePage (
-                    onExit = { navController.navigate("search") },
-                    onClick = { thread ->
-                        ThreadStore.selectedThread = thread
-                        navController.navigate("thread/hub_city")
-                    }
-                )
-            }
-
-            composable("hub_social") {
-                SocialHubPage (
-                    onExit = { navController.navigate("search") },
-                    onClick = { thread ->
-                        ThreadStore.selectedThread = thread
-                        navController.navigate("thread/hub_social")
-                    }
-                )
-            }
-
-            composable("hub_misc") {
-                MiscHubPage (
-                    onExit = { navController.navigate("search") },
-                    onClick = { thread ->
-                        ThreadStore.selectedThread = thread
-                        navController.navigate("thread/hub_misc")
-                    }
-                )
-            }
-
-            composable("my_posts") {
-                ProfilePagePosts (
+            composable("my_hubs") {
+                MyHubsPage(
                     userState = userState,
-                    onExit = {navController.navigate("profile")},
-                    onClick = { thread ->
-                        // Store selected thread temporarily
-                        ThreadStore.selectedThread = thread
-                        navController.navigate("thread/my_posts")
-                    }
+                    onExit = { navController.navigate("profile") },
+                    onHubClick = { hubName -> navController.navigate("hub/${hubName}") }
                 )
             }
 
@@ -346,6 +278,7 @@ fun AppNavigation() {
                             when (source) {
                                 "feed" -> navController.popBackStack()
                                 "my_posts" -> navController.popBackStack()
+                                "my_hubs" -> navController.popBackStack()
                                 "saved_stuff" -> navController.popBackStack()
                                 "cart" -> navController.popBackStack()
                                 "hub_school" -> navController.popBackStack()
@@ -379,6 +312,8 @@ fun AppNavigation() {
                     }
                 )
             }
+
+
         }
     }
 

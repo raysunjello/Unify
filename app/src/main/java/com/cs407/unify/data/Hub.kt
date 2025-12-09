@@ -4,5 +4,7 @@ data class Hub(
     val id: String = "",
     val name: String = "",
     val nameLowercase: String = "",
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    val creatorUid: String = "",
+    val creatorUsername: String? = null
 )

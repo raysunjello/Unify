@@ -645,9 +645,12 @@ fun PostPage(
                             .addOnSuccessListener { snapshot ->
                                 if (!snapshot.exists()) {
                                     val newHub = hashMapOf(
-                                        "name" to hubDisplayName,     // e.g. "SCHOOL"
-                                        "nameLowercase" to hubKey,    // e.g. "school"
-                                        "createdAt" to System.currentTimeMillis()
+                                        "id" to hubKey,
+                                        "name" to hubDisplayName,
+                                        "nameLowercase" to hubKey,
+                                        "createdAt" to System.currentTimeMillis(),
+                                        "creatorUid" to userState.uid,
+                                        "creatorUsername" to userState.username
                                     )
                                     hubDocRef.set(newHub)
                                 }
