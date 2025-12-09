@@ -76,14 +76,21 @@ fun ThreadPage(
     val isOwner = postAuthorUid == userState.uid
 
     LaunchedEffect(thread.id) {
+        // Load all comments, then filter for top-level ones in code
+        // This handles both old comments (missing parentCommentId field) and new ones
         db.collection("posts")
             .document(thread.id)
             .collection("comments")
             .orderBy("createdAt")
             .get()
             .addOnSuccessListener { snapshot ->
+                // Filter to show only top-level comments (those with null, empty, or blank parentCommentId)
                 commentsList = snapshot.documents.mapNotNull { doc ->
                     doc.toObject(PostComment::class.java)?.copy(id = doc.id)
+                }.filter { comment ->
+                    // Top-level comment if parentCommentId is null, empty, or only whitespace
+                    val parentId = comment.parentCommentId
+                    parentId.isNullOrBlank()
                 }
             }
 
@@ -352,23 +359,23 @@ fun ThreadPage(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
             Text(
-                    text = buildString {
-                        append(
-                            when {
-                                postIsAnonymous -> "Anonymous"
-                                !postAuthorName.isNullOrBlank() -> postAuthorName
-                                else -> "Unknown user"
-                            }
-                        )
-                        postAuthorUniversity?.takeIf { it.isNotBlank() }?.let {
-                            append(" • ")
-                            append(it)
+                text = buildString {
+                    append(
+                        when {
+                            postIsAnonymous -> "Anonymous"
+                            !postAuthorName.isNullOrBlank() -> postAuthorName
+                            else -> "Unknown user"
                         }
-                    },
-            fontSize = 16.sp,
-            color = Color.Gray,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
+                    postAuthorUniversity?.takeIf { it.isNotBlank() }?.let {
+                        append(" • ")
+                        append(it)
+                    }
+                },
+                fontSize = 16.sp,
+                color = Color.Gray,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
 
@@ -431,7 +438,11 @@ fun ThreadPage(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 commentsList.forEach { comment ->
-                    CommentCard(comment = comment)
+                    CommentCard(
+                        comment = comment,
+                        userState = userState,
+                        postId = thread.id
+                    )
                 }
             }
         }
@@ -439,37 +450,218 @@ fun ThreadPage(
 }
 
 @Composable
-fun CommentCard(comment: PostComment) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
-    ) {
-        Column(
-            modifier = Modifier.padding(12.dp)
+fun CommentCard(
+    comment: PostComment,
+    userState: UserState,
+    postId: String,
+    isReply: Boolean = false
+) {
+    val context = LocalContext.current
+    val db = FirebaseFirestore.getInstance()
+
+    var showReplyInput by remember { mutableStateOf(false) }
+    var replyText by remember { mutableStateOf("") }
+    var showReplies by remember { mutableStateOf(false) }
+    var replies by remember { mutableStateOf<List<PostComment>>(emptyList()) }
+    var repliesLoaded by remember { mutableStateOf(false) }
+    var replyCount by remember { mutableStateOf(0) }
+
+    // Check if this comment has replies (run once on mount)
+    LaunchedEffect(comment.id) {
+        db.collection("posts")
+            .document(postId)
+            .collection("comments")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                // Count replies for this comment
+                val replyDocs = snapshot.documents.filter { doc ->
+                    val parentId = doc.getString("parentCommentId")
+                    parentId == comment.id
+                }
+                replyCount = replyDocs.size
+            }
+    }
+
+    // Load replies for this comment when user expands them
+    LaunchedEffect(comment.id, showReplies) {
+        if (showReplies && !repliesLoaded) {
+            db.collection("posts")
+                .document(postId)
+                .collection("comments")
+                .orderBy("createdAt")
+                .get()
+                .addOnSuccessListener { snapshot ->
+                    // Filter for replies to this specific comment
+                    replies = snapshot.documents.mapNotNull { doc ->
+                        doc.toObject(PostComment::class.java)?.copy(id = doc.id)
+                    }.filter { reply ->
+                        reply.parentCommentId == comment.id
+                    }
+                    repliesLoaded = true
+                }
+        }
+    }
+
+    Column {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = if (isReply) 32.dp else 16.dp,
+                    end = 16.dp,
+                    top = 8.dp,
+                    bottom = 4.dp
+                ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = if (isReply) Color(0xFFE8E8E8) else Color(0xFFF5F5F5)
+            )
         ) {
+            Column(
+                modifier = Modifier.padding(12.dp)
+            ) {
+                Text(
+                    text = comment.authorUsername ?: "Unknown user",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary
+                )
 
-            Text(
-                text = comment.authorUsername ?: "Unknown user",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.primary
-            )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = comment.text,
+                    fontSize = 16.sp,
+                    color = Color.Black
+                )
+                Spacer(modifier = Modifier.height(4.dp))
 
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = comment.text,
-                fontSize = 16.sp,
-                color = Color.Black
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = formatTimestamp(comment.createdAt),
-                fontSize = 12.sp,
-                color = Color.Gray
-            )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = formatTimestamp(comment.createdAt),
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+
+                    if (!isReply) {
+                        androidx.compose.material3.TextButton(
+                            onClick = { showReplyInput = !showReplyInput },
+                            modifier = Modifier
+                                .padding(0.dp)
+                                .height(24.dp),
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                        ) {
+                            Text(
+                                text = "Reply",
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // Reply input field
+        if (showReplyInput && !isReply) {
+            Column(
+                modifier = Modifier.padding(start = 32.dp, end = 16.dp, top = 4.dp)
+            ) {
+                OutlinedTextField(
+                    value = replyText,
+                    onValueChange = { replyText = it },
+                    placeholder = { Text("Write a reply...", color = Color.Gray) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp)
+                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp, bottom = 8.dp),
+                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.End
+                ) {
+                    androidx.compose.material3.TextButton(
+                        onClick = {
+                            showReplyInput = false
+                            replyText = ""
+                        }
+                    ) {
+                        Text("Cancel")
+                    }
+
+                    androidx.compose.material3.Button(
+                        onClick = {
+                            if (replyText.isBlank()) return@Button
+
+                            val newReplyRef = db.collection("posts")
+                                .document(postId)
+                                .collection("comments")
+                                .document()
+
+                            val newReply = PostComment(
+                                id = newReplyRef.id,
+                                postId = postId,
+                                text = replyText,
+                                authorUid = userState.uid,
+                                authorUsername = userState.username.ifBlank { null },
+                                authorUniversity = userState.university.ifBlank { null },
+                                createdAt = System.currentTimeMillis(),
+                                parentCommentId = comment.id
+                            )
+
+                            newReplyRef.set(newReply)
+                                .addOnSuccessListener {
+                                    replies = replies + newReply
+                                    replyCount = replies.size
+                                    showReplies = true
+                                    repliesLoaded = true
+                                    replyText = ""
+                                    showReplyInput = false
+                                    Toast.makeText(context, "Reply posted!", Toast.LENGTH_SHORT).show()
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(
+                                        context,
+                                        "Failed to post reply: ${e.message}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                        },
+                        enabled = replyText.isNotBlank(),
+                        modifier = Modifier.padding(start = 8.dp)
+                    ) {
+                        Text("Post Reply")
+                    }
+                }
+            }
+        }
+
+        // View Replies button and replies list
+        if (!isReply && replyCount > 0) {
+            androidx.compose.material3.TextButton(
+                onClick = { showReplies = !showReplies },
+                modifier = Modifier.padding(start = 32.dp, top = 4.dp)
+            ) {
+                Text(
+                    text = if (showReplies) "Hide Replies ($replyCount)" else "View Replies ($replyCount)",
+                    fontSize = 12.sp
+                )
+            }
+
+            if (showReplies) {
+                replies.forEach { reply ->
+                    CommentCard(
+                        comment = reply,
+                        userState = userState,
+                        postId = postId,
+                        isReply = true
+                    )
+                }
+            }
         }
     }
 }

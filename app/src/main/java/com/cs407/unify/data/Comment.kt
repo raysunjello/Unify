@@ -7,5 +7,6 @@ data class Comment(
     val authorUid: String = "",
     val authorUsername: String? = null,
     val authorUniversity: String? = null,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    val parentCommentId: String? = null  // null for top-level comments, commentId for replies
 )
