@@ -60,6 +60,7 @@ fun PostPage(
 
     var postTitle by remember { mutableStateOf("") }
     var hub by remember { mutableStateOf("") }
+    var selected by remember { mutableStateOf("") }
     var body by remember { mutableStateOf("") }
     var postAnon by remember { mutableStateOf(false) }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
@@ -340,7 +341,7 @@ fun PostPage(
                 val mainHubs = listOf("SCHOOL", "HOUSING", "TRANSPORT", "CITY", "SOCIAL", "MISC")
                 var allHubs by remember { mutableStateOf<List<String>>(emptyList()) }
                 var isLoading by remember { mutableStateOf(true) }
-                var selected by remember { mutableStateOf("") }
+                //var selected by remember { mutableStateOf("") }
                 var text by remember { mutableStateOf("") }
 
                 // Load all hubs from database
@@ -444,7 +445,7 @@ fun PostPage(
                 // Market Post - Category Dropdown
                 var expanded by remember { mutableStateOf(false) }
                 val marketCategories = listOf("Tickets", "Furniture", "Textbooks", "Notes", "Other Stuff")
-                var selected by remember { mutableStateOf("") }
+                //var selected by remember { mutableStateOf("") }
 
                 Button(
                     onClick = { expanded = true },
@@ -709,6 +710,7 @@ fun PostPage(
                             postTitle = ""
                             body = ""
                             hub = ""
+                            selected = ""
                             category = ""
                             price = ""
                             contactInfo = ""
