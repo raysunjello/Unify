@@ -1,5 +1,6 @@
 package com.cs407.unify.ui.screens.profile
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,8 +14,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
@@ -31,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -152,70 +157,99 @@ fun ProfilePage(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(12.dp)
             ) {
-                ElevatedCard(
+                Button(
                     modifier = Modifier
+                        .padding(16.dp)
                         .fillMaxWidth()
-                        .wrapContentHeight()
-                        .padding(25.dp),
-                    shape = MaterialTheme.shapes.extraLarge,
-                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+                        .height(100.dp)
+                        .clickable { onNavigateToMyPosts() },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = Color.White
+                    ),
+                    border = BorderStroke(2.dp, Color.White),
+                    onClick = { onNavigateToMyPosts() }
                 ) {
                     Text(
                         text = "MY POSTS",
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(25.dp).clickable(onClick = onNavigateToMyPosts)
+                        modifier = Modifier
+                            .padding(25.dp)
+
                     )
                 }
-                ElevatedCard(
+
+                Button(
                     modifier = Modifier
+                        .padding(16.dp)
                         .fillMaxWidth()
-                        .wrapContentHeight()
-                        .padding(25.dp),
-                    shape = MaterialTheme.shapes.extraLarge,
-                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+                        .height(100.dp)
+                        .clickable { onNavigateToMyHubs() },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = Color.White
+                    ),
+                    border = BorderStroke(2.dp, Color.White),
+                    onClick = { onNavigateToMyHubs() }
                 ) {
                     Text(
                         text = "MY HUBS",
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier
                             .padding(25.dp)
-                            .clickable(onClick = onNavigateToMyHubs)
+
                     )
                 }
-                ElevatedCard(
+
+                Button(
                     modifier = Modifier
+                        .padding(16.dp)
                         .fillMaxWidth()
-                        .wrapContentHeight()
-                        .padding(25.dp),
-                    shape = MaterialTheme.shapes.extraLarge,
-                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+                        .height(100.dp)
+                        .clickable { onNavigateToSavedStuff() },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = Color.White
+                    ),
+                    border = BorderStroke(2.dp, Color.White),
+                    onClick = { onNavigateToSavedStuff() }
                 ) {
                     Text(
-                        text = "SAVED STUFF",
-                        style = MaterialTheme.typography.titleLarge,
+                        text = "MY SAVES",
+                        style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier
                             .padding(25.dp)
-                            .clickable(onClick = onNavigateToSavedStuff)
+
                     )
                 }
-                ElevatedCard(
+
+                Button(
                     modifier = Modifier
+                        .padding(16.dp)
                         .fillMaxWidth()
-                        .wrapContentHeight()
-                        .padding(25.dp),
-                    shape = MaterialTheme.shapes.extraLarge,
-                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+                        .height(100.dp)
+                        .clickable { onNavigateToRecentActivity() },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = Color.White
+                    ),
+                    border = BorderStroke(2.dp, Color.White),
+                    onClick = { onNavigateToRecentActivity() }
                 ) {
                     Text(
-                        text = "RECENT ACTIVITY",
+                        text = "ACTIVITY",
+                        style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
                             .padding(25.dp)
-                            .clickable(onClick = onNavigateToRecentActivity)
+
                     )
                 }
 

@@ -42,6 +42,7 @@ import com.cs407.unify.data.Post
 import com.cs407.unify.data.UserState
 import com.cs407.unify.ui.components.UnifyBottomBar
 import com.cs407.unify.ui.components.BottomTab
+import com.cs407.unify.ui.screens.explore.defaultsThenOthers
 import com.google.firebase.firestore.FirebaseFirestore
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -336,9 +337,28 @@ fun PostPage(
                 // Regular Post - Hub Dropdown
                 var expanded by remember { mutableStateOf(false) }
                 var newHub by remember { mutableStateOf(false) }
-                val mainHubs = listOf("SCHOOL", "HOUSING", "TRANSPORT", "CITY", "SOCIAL", "MISC", "( ADD NEW )")
+                val mainHubs = listOf("SCHOOL", "HOUSING", "TRANSPORT", "CITY", "SOCIAL", "MISC")
+                var allHubs by remember { mutableStateOf<List<String>>(emptyList()) }
+                var isLoading by remember { mutableStateOf(true) }
                 var selected by remember { mutableStateOf("") }
                 var text by remember { mutableStateOf("") }
+
+                // Load all hubs from database
+                LaunchedEffect(Unit) {
+                    db.collection("hubs")
+                        .orderBy("name")
+                        .get()
+                        .addOnSuccessListener { snapshot ->
+                            val hubs = snapshot.documents.mapNotNull { doc ->
+                                doc.getString("name")
+                            }
+                            allHubs = defaultsThenOthers(hubs, mainHubs)
+                            isLoading = false
+                        }
+                        .addOnFailureListener {
+                            isLoading = false
+                        }
+                }
 
                 Button(
                     onClick = { expanded = true },
@@ -369,16 +389,17 @@ fun PostPage(
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
                 ) {
-                    mainHubs.forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text("[ ADD NEW ]") },
+                        onClick = { newHub = true }
+                    )
+                    allHubs.forEach { option ->
                         DropdownMenuItem(
                             text = { Text(option) },
                             onClick = {
                                 selected = option
                                 hub = option
                                 expanded = false
-                                if (option == "( ADD NEW )") {
-                                    newHub = true
-                                }
                             }
                         )
                     }
@@ -397,9 +418,14 @@ fun PostPage(
                         },
                         confirmButton = {
                             Button(onClick = {
-                                newHub = false
-                                selected = text
-                                hub = text
+                                if(allHubs.contains(text)) {
+                                    text = ""
+                                }
+                                else {
+                                    newHub = false
+                                    selected = text
+                                    hub = text
+                                }
                             }) {
                                 Text("OK")
                             }

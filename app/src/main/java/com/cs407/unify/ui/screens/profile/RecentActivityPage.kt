@@ -293,7 +293,7 @@ fun RecentActivityPage(
             ) {
                 item {
                     Text(
-                        text = "RECENT ACTIVITY",
+                        text = "ACTIVITY",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(bottom = 16.dp)

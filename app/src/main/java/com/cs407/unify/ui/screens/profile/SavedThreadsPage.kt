@@ -125,7 +125,7 @@ fun SavedThreadsPage(
                     .padding(top = 20.dp)
             ) {
                 Text(
-                    text = "SAVED STUFF",
+                    text = "MY SAVES",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold
                 )

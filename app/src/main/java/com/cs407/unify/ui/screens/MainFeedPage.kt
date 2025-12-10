@@ -115,6 +115,7 @@ fun MainFeedPage(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Top)
         ) {
+            Spacer(modifier = Modifier.height(12.dp))
             Image(
                 painter = painterResource(id = R.drawable.unify_logo),
                 contentDescription = "Unify Logo",
@@ -124,18 +125,8 @@ fun MainFeedPage(
                 contentScale = ContentScale.FillBounds,
                 colorFilter = null
             )
+            Spacer(modifier = Modifier.height(12.dp))
 
-            Spacer(modifier = Modifier.height(40.dp))
-
-//            LazyColumn(
-//                modifier = Modifier.padding(all = 20.dp)
-//            ) {
-//                items(threadState.entries.toList()) { thread ->
-//                    ThreadCard(
-//                        thread.value,
-//                        onNavigateToPostPage
-//                    ) // TODO : implement click -> ThreadPage
-//                }
             LazyColumn( // TODO : change to paging object
                 modifier = Modifier
                     .fillMaxWidth()

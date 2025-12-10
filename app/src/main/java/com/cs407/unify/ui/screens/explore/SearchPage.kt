@@ -123,7 +123,7 @@ fun SearchPage(
                     .clip(RoundedCornerShape(50.dp))
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -146,8 +146,8 @@ fun SearchPage(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(12.dp),
-                            contentPadding = PaddingValues(bottom = 80.dp), // Space for bottom nav bar
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                            contentPadding = PaddingValues(bottom = 80.dp) // Space for bottom nav bar
+                            //verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
                             items(filteredHubs) { hubName ->
                                 Button(
