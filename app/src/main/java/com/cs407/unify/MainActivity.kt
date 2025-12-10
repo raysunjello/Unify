@@ -45,6 +45,7 @@ import com.cs407.unify.ui.screens.explore.HubPostsPage
 import com.cs407.unify.ui.screens.profile.SavedThreadsPage
 import com.cs407.unify.ui.screens.profile.CartPage
 import com.cs407.unify.ui.theme.AppTheme
+import com.cs407.unify.ui.screens.profile.RecentActivityPage
 
 
 class MainActivity : ComponentActivity() {
@@ -211,7 +212,8 @@ fun AppNavigation() {
                     onNavigateToMyPosts = { navController.navigate("my_posts")},
                     onNavigateToSettingsPage = {navController.navigate("settings")},
                     onNavigateToSavedStuff = { navController.navigate("saved_stuff")},
-                    onNavigateToMyHubs = { navController.navigate("my_hubs")}
+                    onNavigateToMyHubs = { navController.navigate("my_hubs")},
+                    onNavigateToRecentActivity = { navController.navigate("recent_activity")}
                 )
             }
 
@@ -281,6 +283,7 @@ fun AppNavigation() {
                                 "my_hubs" -> navController.popBackStack()
                                 "saved_stuff" -> navController.popBackStack()
                                 "cart" -> navController.popBackStack()
+                                "recent_activity" -> navController.popBackStack()
                                 "hub_school" -> navController.popBackStack()
                                 else -> navController.popBackStack()
                             }
@@ -313,8 +316,16 @@ fun AppNavigation() {
                 )
             }
 
-
+            composable("recent_activity") {
+                RecentActivityPage(
+                    userState = userState,
+                    onExit = { navController.popBackStack() },
+                    onClick = { thread ->
+                        ThreadStore.selectedThread = thread
+                        navController.navigate("thread/recent_activity")
+                    }
+                )
+            }
         }
     }
-
 }

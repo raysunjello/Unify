@@ -54,6 +54,7 @@ fun PreviewProfilePage() {
         onNavigateToSettingsPage = {},
         onNavigateToSavedStuff = {},
         onNavigateToMyHubs = {},
+        onNavigateToRecentActivity = {},
     )
 }
 @Composable
@@ -66,6 +67,7 @@ fun ProfilePage(
     onNavigateToSettingsPage: () -> Unit,
     onNavigateToSavedStuff: () -> Unit,
     onNavigateToMyHubs: () -> Unit,
+    onNavigateToRecentActivity: () -> Unit = {},
 ) {
 //    val drawerState = rememberDrawerState(DrawerValue.Closed)
 //    val scope = rememberCoroutineScope()
@@ -129,14 +131,14 @@ fun ProfilePage(
             )
 
             Text(
-                text = username, // TODO replace w string
+                text = username,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(top = 16.dp),
                 style = MaterialTheme.typography.displaySmall,
                 color = MaterialTheme.colorScheme.onBackground
             )
             Text(
-                text = university, // TODO replace w string
+                text = university,
                 modifier = Modifier.padding(vertical = 8.dp),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onBackground
@@ -144,6 +146,7 @@ fun ProfilePage(
 
             Spacer(Modifier.height(24.dp))
             HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+            Spacer(Modifier.height(24.dp))
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -153,7 +156,7 @@ fun ProfilePage(
                     modifier = Modifier
                         .fillMaxWidth()
                         .wrapContentHeight()
-                        .padding(16.dp),
+                        .padding(25.dp),
                     shape = MaterialTheme.shapes.extraLarge,
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
                 ) {
@@ -168,7 +171,7 @@ fun ProfilePage(
                     modifier = Modifier
                         .fillMaxWidth()
                         .wrapContentHeight()
-                        .padding(16.dp),
+                        .padding(25.dp),
                     shape = MaterialTheme.shapes.extraLarge,
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
                 ) {
@@ -185,7 +188,7 @@ fun ProfilePage(
                     modifier = Modifier
                         .fillMaxWidth()
                         .wrapContentHeight()
-                        .padding(16.dp),
+                        .padding(25.dp),
                     shape = MaterialTheme.shapes.extraLarge,
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
                 ) {
@@ -202,7 +205,7 @@ fun ProfilePage(
                     modifier = Modifier
                         .fillMaxWidth()
                         .wrapContentHeight()
-                        .padding(16.dp),
+                        .padding(25.dp),
                     shape = MaterialTheme.shapes.extraLarge,
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
                 ) {
@@ -210,9 +213,10 @@ fun ProfilePage(
                         text = "RECENT ACTIVITY",
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(25.dp)
+                        modifier = Modifier
+                            .padding(25.dp)
+                            .clickable(onClick = onNavigateToRecentActivity)
                     )
-                    Spacer(Modifier.height(100.dp))
                 }
 
             }
